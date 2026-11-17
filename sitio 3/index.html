@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2B4EFF">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mi entrenamiento">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2316233B'/%3E%3Crect x='6' y='19' width='5' height='7' rx='1' fill='%23F7F5F0'/%3E%3Crect x='13.5' y='13' width='5' height='13' rx='1' fill='%23F7F5F0'/%3E%3Crect x='21' y='6' width='5' height='20' rx='1' fill='%235FC4B5'/%3E%3C/svg%3E">
+<title>Mi entrenamiento</title>
+<style>
+/* ---- Colores (se cambian acá y valen para toda la app) ---- */
+:root{--bg:#F2F4F7;--card:#fff;--ink:#12202B;--sub:#566574;--line:#D5DCE4;--pri:#2B4EFF;--pri-ink:#fff;--ok:#1E9E6A;--err:#C62B2B;--errbg:#FDECEC;--okbg:#E5F6EE;--warn:#7A5200;--warnbg:#FFF3CD}
+@media(prefers-color-scheme:dark){:root{--bg:#0F1720;--card:#18232F;--ink:#EAF0F6;--sub:#9FB0C0;--line:#2B3A49;--pri:#6F88FF;--pri-ink:#0F1720;--ok:#4FD39B;--err:#FF8A8A;--errbg:#3A1E22;--okbg:#17342A;--warn:#FFD66B;--warnbg:#3A3015}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:480px;margin:0 auto;padding:20px 16px 48px}
+main.ancho{max-width:720px}
+h1{font-size:1.6rem;margin:8px 0 4px}
+h2{font-size:1.15rem;margin:22px 0 4px}
+.sub{color:var(--sub);margin:0 0 16px}
+.big{font-size:1.15rem}
+.hide{display:none!important}
+/* ---- Tarjetas y formularios ---- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:12px}
+.card>div{margin-top:4px;overflow-wrap:anywhere}
+label{display:block;font-weight:600;margin:14px 0 6px}
+input,select,textarea{width:100%;min-height:52px;padding:12px 14px;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:10px}
+textarea{min-height:96px}
+input:focus,select:focus,textarea:focus,button:focus-visible,a:focus-visible{outline:3px solid var(--pri);outline-offset:1px}
+.check{display:flex;gap:12px;align-items:flex-start;font-weight:400}
+.check input{width:26px;min-height:26px;height:26px;flex:none;margin-top:2px}
+/* ---- Botones ---- */
+button,.btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:54px;margin-top:14px;padding:12px;font:inherit;font-weight:700;border:0;border-radius:12px;background:var(--pri);color:var(--pri-ink);cursor:pointer;text-decoration:none}
+button.sec{background:transparent;color:var(--pri);border:2px solid var(--pri)}
+button.link{background:none;color:var(--sub);font-weight:600;min-height:48px;margin-top:4px;text-decoration:underline}
+button:disabled{opacity:.55;cursor:wait}
+.btn{background:#1B7F45;color:#fff}
+.mini{width:auto;min-height:48px;margin:0;padding:8px 14px}
+/* ---- Mensajes, barra y pestañas ---- */
+.msg{border-radius:10px;padding:12px 14px;margin-top:14px;font-weight:600}
+.msg.err{background:var(--errbg);color:var(--err)}
+.msg.ok{background:var(--okbg);color:var(--ok)}
+.bar{display:flex;align-items:center;gap:8px}
+.bar strong{flex:1;font-size:1.2rem}
+.tabs{display:flex;gap:8px;margin:8px 0 12px;overflow-x:auto;padding-bottom:4px}
+.tabs button{flex:1 0 auto;width:auto;white-space:nowrap;margin:0;min-height:48px;padding:8px 16px;font-size:.92rem;background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
+.tabs button.on{background:var(--pri);color:var(--pri-ink);border-color:var(--pri)}
+/* ---- Semáforo de pagos ---- */
+.card>.pago,.pago{margin-top:10px;padding:6px 10px;border-radius:8px;font-weight:700;font-size:.95rem}
+.pago.verde{background:var(--okbg);color:var(--ok)}
+.pago.amarillo{background:var(--warnbg);color:var(--warn)}
+.pago.rojo{background:var(--errbg);color:var(--err)}
+.pago.gris{background:var(--line);color:var(--sub)}
+/* ---- Rutinas ---- */
+.card>.ex{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.ex span{flex:1 1 100%;overflow-wrap:anywhere}
+.ex .mini{flex:1}
+.nota{display:block;color:var(--sub)}
+/* ---- Camino del alumno ---- */
+.prog{height:12px;background:var(--line);border-radius:8px;overflow:hidden;margin-top:10px}
+.prog i{display:block;height:100%;background:var(--ok)}
+.cam{display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px 0}
+.paso{display:flex;flex-direction:column;align-items:center}
+.paso small{color:var(--sub);font-size:.8rem;margin-top:4px;max-width:150px;text-align:center}
+.nodo{width:68px;height:68px;min-height:68px;margin:0;padding:0;border-radius:50%;font-size:1.3rem;background:var(--card);color:var(--ink);border:3px solid var(--line)}
+.nodo.hecho{background:var(--ok);border-color:var(--ok);color:var(--pri-ink)}
+.nodo.hoy{border-color:var(--pri);box-shadow:0 0 0 6px color-mix(in srgb,var(--pri) 25%,transparent)}
+.nodo.hito{width:auto;padding:0 22px;border-radius:20px;cursor:default}
+/* ---- Calendario ---- */
+.card>.calg,.calg{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:12px}
+.calg span{text-align:center;color:var(--sub);font-size:.8rem;font-weight:700}
+.calg button{margin:0;min-height:44px;padding:0;font-weight:600;background:var(--bg);color:var(--ink);border:1.5px solid var(--line)}
+.calg button.on{background:var(--ok);border-color:var(--ok);color:var(--pri-ink)}
+.calg button.sel{outline:3px solid var(--pri);outline-offset:1px}
+/* ---- Seguimiento y contacto (coach) ---- */
+.card>.acc,.acc{display:flex;gap:8px}
+.acc .btn{flex:1;margin-top:10px;min-height:48px}
+.card>.seg,.seg{margin-top:12px;padding:12px;border-radius:12px;border:2px solid var(--line)}
+.seg.rojo{border-color:var(--err)}
+.seg.amarillo{border-color:var(--warn)}
+.seg.verde{border-color:var(--ok)}
+.ult{font-size:1.05rem;font-weight:700}
+/* ---- Interfaz del alumno ---- */
+main.conNav{padding-bottom:104px}
+.hero{background:linear-gradient(135deg,#2B4EFF,#7A3DF0);color:#fff;border-radius:22px;padding:22px;margin-top:8px;box-shadow:0 10px 26px rgba(43,78,255,.28)}
+.hero h1{margin:0 0 6px;font-size:1.5rem}
+.hero p{margin:0 0 14px;opacity:.95}
+.hero .prog{background:rgba(255,255,255,.28)}
+.hero .prog i{background:#fff}
+.prog i{transition:width .9s ease}
+.dots{display:flex;gap:8px;margin-top:12px}
+.dots i{flex:1;height:10px;border-radius:6px;background:rgba(255,255,255,.3)}
+.dots i.on{background:#fff}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 6px;text-align:center}
+.stat b{display:block;font-size:1.5rem}
+.stat small{color:var(--sub)}
+.logros{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:8px}
+.logro{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 10px;text-align:center}
+.logro span{display:block;font-size:2rem}
+.logro b{display:block}
+.logro small{display:block;color:var(--sub)}
+.logro.off{opacity:.45;filter:grayscale(1)}
+.nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom));z-index:5}
+.nav button{flex:1;flex-direction:column;gap:2px;margin:0;min-height:56px;background:none;color:var(--sub);font-size:.85rem}
+.nav button.on{color:var(--pri)}
+.nav span{font-size:1.35rem}
+.toast{background:var(--okbg);color:var(--ok);border-radius:14px;padding:14px;font-weight:700;margin-top:10px;animation:sube .5s}
+.ig{display:block;background:linear-gradient(45deg,#F58529,#DD2A7B,#8134AF,#515BD4);color:#fff;border-radius:18px;padding:18px;margin-top:14px;text-decoration:none}
+.ig b{display:block;font-size:1.25rem}
+.btn.p{background:var(--pri);color:var(--pri-ink)}
+.fotos{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:12px}
+.foto{margin:0}
+.foto img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:12px;display:block;background:var(--line)}
+.foto figcaption{font-size:.85rem;color:var(--sub);text-align:center}
+@keyframes sube{from{opacity:0;transform:translateY(10px)}}
+@keyframes pulso{50%{box-shadow:0 0 0 12px transparent}}
+@media(prefers-reduced-motion:no-preference){.nodo.hoy{animation:pulso 1.8s infinite}}
+.semh{align-self:stretch;margin-top:14px;padding:6px 12px;border-radius:10px;background:var(--card);border:1px solid var(--line);font-weight:700;font-size:.9rem;text-align:center}
+.aviso{border:2px solid var(--pri);border-radius:16px;padding:14px;margin-top:12px;background:var(--card)}
+.aviso div{margin-top:4px}
+.card>.fila,.fila{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px}
+.fila .mini{flex:none}
+/* ---- Tablero ---- */
+.stats.dos{grid-template-columns:repeat(2,1fr)}
+.stat small{display:block}
+.delta{font-weight:700}
+.delta.ok{color:var(--ok)}
+.delta.mal{color:var(--err)}
+.barras{display:flex;align-items:flex-end;gap:4px;height:160px;margin-top:12px}
+.barras .col{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:2px}
+.barras .col i{display:block;width:100%;background:var(--pri);border-radius:6px 6px 0 0}
+.barras small{font-size:.7rem;color:var(--sub);white-space:nowrap}
+/* ---- Superseries, semanas y tabla resumen ---- */
+.ss{display:inline-block;margin-left:6px;padding:2px 8px;border-radius:8px;background:var(--warnbg);color:var(--warn);font-weight:700;font-size:.8rem}
+.card>.ex.enss{border-left:4px solid var(--warn);padding-left:10px}
+.card.enss{border-left:6px solid var(--warn)}
+.sh h2{flex:1;margin:22px 0 4px}
+.nodo.parcial{border-color:var(--pri)}
+.tabla{overflow-x:auto;margin-top:8px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.tabla table{border-collapse:collapse;width:100%;min-width:540px;font-size:.9rem}
+.tabla th,.tabla td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+.tabla td:first-child{white-space:normal;min-width:150px}
+.tabla thead th{background:var(--bg);font-size:.8rem;color:var(--sub)}
+.tabla tr.dia th{background:var(--bg);color:var(--ink);font-size:.85rem}
+.dl.pos{color:var(--ok);font-weight:700}
+.dl.neg{color:var(--err);font-weight:700}
+/* ---- Ventana emergente ---- */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);overflow:auto;padding:16px;z-index:9}
+.ov .card{max-width:480px;margin:0 auto}
+/* ---- Firma de la autora (Mayra Flores) ---- */
+.firma{--acc:#247A6F;max-width:480px;margin:0 auto;padding:8px 16px 20px;display:flex;align-items:center;justify-content:center;gap:12px;color:var(--sub);font-size:12px;line-height:1.35}
+@media(prefers-color-scheme:dark){.firma{--acc:#5FC4B5}}
+.firma svg{flex:none;width:56px;height:auto;color:var(--ink)}
+.firma b{display:block;color:var(--ink);font-weight:600}
+.firma span{display:block}
+.firma a{display:inline-block;color:var(--sub);text-decoration:none;padding:2px 0}
+.firma a:hover{color:var(--ink);text-decoration:underline}
+main.conNav + .firma{padding-bottom:84px}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<footer class="firma">
+  <svg viewBox="0 0 102 40" role="img" aria-label="Mayra Flores">
+    <circle cx="6" cy="24" r="6" fill="currentColor"/>
+    <line x1="12" y1="24" x2="32" y2="24" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="38" cy="24" r="6" fill="currentColor"/>
+    <line x1="44" y1="24" x2="64" y2="24" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+    <rect x="68" y="24" width="8" height="14" rx="1" fill="currentColor"/>
+    <rect x="81" y="14" width="8" height="24" rx="1" fill="currentColor"/>
+    <rect x="94" y="4" width="8" height="34" rx="1" fill="var(--acc)"/>
+  </svg>
+  <div>
+    <b>Mayra Flores</b>
+    <span>Apps web, bases de datos e indicadores</span>
+    <a href="https://wa.me/5491130029032?text=Hola%20Mayra%2C%20vi%20tu%20app%20y%20quiero%20consultarte%20por%20una%20para%20mi%20negocio." target="_blank" rel="noopener">+54 9 11 3002-9032</a>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+// =====================================================================
+// 1. CONEXIÓN CON SUPABASE (solo la clave publicable, NUNCA la secret)
+// =====================================================================
+const HASH_INICIAL = location.hash;       // si el alumno llega desde el mail de recuperación, acá vienen los datos
+const sb = supabase.createClient(
+  'https://mzvztllpbrfvrrzcjjtz.supabase.co',
+  'sb_publishable_XN-FVT3WYbv-gS3Velv7YA_2h9vmkK5'
+);
+const app = document.getElementById('app');
+const OBJETIVOS = ['Mantener masa muscular','Bajar de peso','Ganar masa muscular','Mantenerse activo'];
+
+// =====================================================================
+// 2. HERRAMIENTAS GENERALES
+// =====================================================================
+
+// h('button', {class:'sec', onclick: fn}, 'Texto') crea un elemento HTML desde JavaScript.
+function h(tag, attrs, ...hijos){
+  const e = document.createElement(tag);
+  for (const k in (attrs || {})) {
+    if (k.startsWith('on')) e[k] = attrs[k];
+    else if (attrs[k] !== false && attrs[k] != null) e.setAttribute(k, attrs[k]);
+  }
+  hijos.flat(Infinity).forEach(c => e.append(c == null || c === false ? '' : c));
+  return e;
+}
+
+// Cambia lo que se ve en pantalla
+function pantalla(...nodos){
+  app.className = '';
+  app.replaceChildren(...nodos.flat(Infinity).filter(Boolean));
+  window.scrollTo(0, 0);
+}
+
+// Muestra u oculta un mensaje
+const verMsg = (div, texto) => { div.textContent = texto || ''; div.classList.toggle('hide', !texto); };
+
+// Ejecuta fn con el botón desactivado. Si fn devuelve un texto, se muestra como error.
+async function correr(btn, errDiv, fn){
+  const t = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Un momento...'; verMsg(errDiv, '');
+  const m = await fn();
+  btn.disabled = false; btn.textContent = t;
+  if (m) verMsg(errDiv, m);
+}
+
+// Traduce los errores técnicos a mensajes claros
+function traducir(e){
+  const t = ((e && e.message) || '').toLowerCase();
+  const tabla = [
+    ['failed to fetch', 'Sin conexión. Revisá tu internet e intentá de nuevo.'],
+    ['invalid login', 'Mail o contraseña incorrectos.'],
+    ['already registered', 'Ese mail ya está registrado. Probá ingresar.'],
+    ['database error', 'No pudimos crear tu usuario. Revisá los datos e intentá de nuevo.'],
+    ['rate limit', 'Se alcanzó el límite de mails por ahora. Esperá un rato y probá de nuevo.'],
+    ['session missing', 'El link venció o ya se usó. Pedí uno nuevo desde "Olvidé mi contraseña".'],
+    ['should be different', 'La contraseña nueva tiene que ser distinta de la anterior.'],
+    ['too many', 'Hiciste muchos intentos. Esperá un minuto y probá de nuevo.'],
+    ['invalid email', 'El mail no es válido.'],
+    ['email address', 'Ese mail no es válido o no está permitido. Probá con otro.'],
+    ['signups not allowed', 'El registro de usuarios nuevos está desactivado en Supabase.'],
+    ['error sending', 'No se pudo enviar el mail de confirmación.'],
+    ['weak', 'Esa contraseña es muy fácil de adivinar. Probá con otra más larga.'],
+    ['permission denied', 'No tenés permiso para hacer esto.'],
+    ['row-level security', 'No tenés permiso para hacer esto.'],
+    ['check constraint', 'Algún dato no es válido. Revisá los números y las fechas.']
+  ];
+  const x = tabla.find(([k]) => t.includes(k));
+  // Detalle técnico entre paréntesis (temporal, para encontrar el problema; después lo sacamos)
+  return x ? x[1] : 'Ocurrió un error. Intentá de nuevo en unos minutos.' + (e && e.message ? ' (' + e.message + ')' : '');
+}
+
+// ---- Fechas ----
+const hoy = () => new Date().toLocaleDateString('en-CA');            // 2026-11-14
+const aDias = f => { const [a, b, c] = f.split('-').map(Number); return Date.UTC(a, b - 1, c) / 864e5; };
+const difDias = (a, b) => Math.round(aDias(b) - aDias(a));
+const fmt = f => f ? f.split('-').reverse().join('/') : '';           // 14/11/2026
+function edad(f){
+  const n = new Date(), d = new Date(f + 'T00:00');
+  let e = n.getFullYear() - d.getFullYear();
+  if (n < new Date(n.getFullYear(), d.getMonth(), d.getDate())) e--;
+  return e;
+}
+
+// Semáforo del pago según la fecha de vencimiento
+function alerta(f){
+  if (!f) return {c:'gris', t:'Sin fecha de pago'};
+  const d = difDias(hoy(), f);
+  if (d < 0) return {c:'rojo', t:'Pago vencido hace ' + (-d) + (d === -1 ? ' día' : ' días')};
+  if (d <= 3) return {c:'amarillo', t: d === 0 ? 'El pago vence hoy' : 'El pago vence en ' + d + (d === 1 ? ' día' : ' días')};
+  return {c:'verde', t:'Pago al día'};
+}
+
+// Ventana emergente con campos. ok(v) devuelve un texto de error, o nada si salió bien.
+// Campo: {k:'clave', l:'Etiqueta', t:'tipo', v:valorInicial, o:[[valor,texto],...] (solo select)}
+function pedir(titulo, campos, ok){
+  const F = {}, err = h('div', {class:'msg err hide', role:'alert'}), ov = h('div', {class:'ov'});
+  const btn = h('button', {type:'submit'}, 'Guardar');
+  const form = h('form', {class:'card', novalidate:true, onsubmit: e => {
+    e.preventDefault();
+    correr(btn, err, async () => {
+      const v = {}; campos.forEach(c => v[c.k] = F[c.k].value.trim());
+      const m = await ok(v);
+      if (!m) ov.remove();
+      return m;
+    });
+  }},
+    h('strong', {}, titulo),
+    campos.map(c => {
+      const id = 'pd-' + c.k;
+      F[c.k] = c.t === 'select'
+        ? h('select', {id}, c.o.map(([val, txt]) => h('option', {value:val, selected: val === c.v}, txt)))
+        : h('input', {id, type:c.t || 'text', value: c.v == null ? '' : c.v, inputmode:c.im});
+      return [h('label', {for:id}, c.l), F[c.k]];
+    }), err, btn,
+    h('button', {type:'button', class:'sec', onclick:() => ov.remove()}, 'Cancelar'));
+  ov.append(form); document.body.append(ov);
+}
+
+// =====================================================================
+// 3. ARRANQUE: decide qué pantalla mostrar
+//    Alumnos: abrir la página normal.   Coach: agregar #coach al final de la dirección.
+// =====================================================================
+async function arrancar(){
+  if (recuperando) return pNueva();
+  const rutaCoach = location.hash === '#coach';
+  const {data:{session}} = await sb.auth.getSession();
+  if (!session) return pLogin(rutaCoach);
+
+  const {data:perfil, error} = await sb.from('perfiles').select('rol,nombre').eq('id', session.user.id).maybeSingle();
+  if (error) { await sb.auth.signOut(); return pLogin(rutaCoach, traducir(error)); }
+
+  if (perfil && perfil.rol === 'coach') {
+    if (!rutaCoach) { location.hash = '#coach'; return; }   // esto vuelve a llamar a arrancar()
+    return pPanel(perfil);
+  }
+  if (rutaCoach) { await sb.auth.signOut(); return pLogin(true, 'Esta cuenta no es de coach.'); }
+  return pEstado(session.user);
+}
+async function salir(){ await sb.auth.signOut(); arrancar(); }
+window.addEventListener('hashchange', arrancar);
+
+// =====================================================================
+// 4. PANTALLAS DEL ALUMNO
+// =====================================================================
+
+// ---- Ingresar (la usan el alumno y el coach) ----
+function pLogin(coach, error, exito){
+  const mail = h('input', {id:'mail', type:'email', autocomplete:'email', inputmode:'email'});
+  const pass = h('input', {id:'pass', type:'password', autocomplete:'current-password'});
+  const err = h('div', {class:'msg err hide', role:'alert'}), ok = h('div', {class:'msg ok hide', role:'status'});
+  verMsg(err, error); verMsg(ok, exito);
+  const btn = h('button', {type:'submit'}, 'Ingresar');
+  pantalla(
+    h('h1', {}, coach ? 'Acceso de coach' : 'Ingresá a tu cuenta'),
+    coach ? null : h('p', {class:'sub'}, 'Entrenamiento personalizado'),
+    h('form', {class:'card', novalidate:true, onsubmit: e => {
+      e.preventDefault();
+      correr(btn, err, async () => {
+        if (!mail.value.trim() || !pass.value) return 'Completá tu mail y tu contraseña.';
+        const {error} = await sb.auth.signInWithPassword({email:mail.value.trim(), password:pass.value});
+        if (error) return traducir(error);
+        arrancar();
+      });
+    }}, h('label', {for:'mail'}, 'Mail'), mail, h('label', {for:'pass'}, 'Contraseña'), pass, err, ok, btn),
+    coach ? null : h('button', {class:'sec', onclick: () => pRegistro()}, 'Crear usuario'),
+    h('button', {class:'link', onclick: () => pOlvide()}, 'Olvidé mi contraseña')
+  );
+}
+
+// ---- Crear usuario ----
+function pRegistro(){
+  const f = {}, err = h('div', {class:'msg err hide', role:'alert'});
+  const campo = (k, l, attrs) => { f[k] = h('input', {id:'r-' + k, ...attrs}); return [h('label', {for:'r-' + k}, l), f[k]]; };
+  f.obj = h('select', {id:'r-obj'}, h('option', {value:''}, 'Elegí una opción'), OBJETIVOS.map(o => h('option', {}, o)));
+  f.obs = h('textarea', {id:'r-obs', placeholder:'Lesiones, contraindicaciones o cualquier cosa que tu coach deba saber'});
+  f.cons = h('input', {id:'r-cons', type:'checkbox'});
+  const btn = h('button', {type:'submit'}, 'Crear usuario');
+
+  const crear = async () => {
+    const nombre = f.nombre.value.trim(), nac = f.nac.value, tel = f.tel.value.trim(), mail = f.mail.value.trim();
+    const pass = f.pass.value, peso = Number(f.peso.value.trim().replace(',', '.'));
+    if (!nombre) return 'Escribí tu nombre y apellido.';
+    if (!nac || nac > hoy()) return 'Revisá tu fecha de nacimiento.';
+    if (tel.replace(/\D/g, '').length < 8) return 'Escribí un teléfono válido, con código de país.';
+    if (!/^\S+@\S+\.\S+$/.test(mail)) return 'El mail no es válido.';
+    if (pass.length < 8) return 'La contraseña debe tener al menos 8 caracteres.';
+    if (!f.obj.value) return 'Elegí tu objetivo.';
+    if (!(peso >= 20 && peso <= 400)) return 'Escribí tu peso en kg, por ejemplo 72,5.';
+    if (!f.cons.checked) return 'Para continuar tenés que aceptar el uso de tus datos.';
+    const {data, error} = await sb.auth.signUp({email:mail, password:pass, options:{data:{
+      nombre, fecha_nacimiento:nac, telefono:tel, objetivo:f.obj.value, peso,
+      observaciones:f.obs.value.trim(), consentimiento_datos:true
+    }}});
+    if (error) return traducir(error);
+    if (data.user && data.user.identities && data.user.identities.length === 0) return 'Ese mail ya está registrado. Probá ingresar.';
+    if (!data.session) return pLogin(false, '', 'Listo. Te enviamos un mail: confirmalo y después ingresá.');
+    arrancar();
+  };
+
+  pantalla(
+    h('h1', {}, 'Crear usuario'),
+    h('p', {class:'sub'}, 'Completá tus datos. Tu coach va a revisar tu solicitud.'),
+    h('form', {class:'card', novalidate:true, onsubmit: e => { e.preventDefault(); correr(btn, err, crear); }},
+      campo('nombre', 'Nombre y apellido', {type:'text', autocomplete:'name'}),
+      campo('nac', 'Fecha de nacimiento', {type:'date', autocomplete:'bday'}),
+      campo('tel', 'Teléfono (WhatsApp)', {type:'tel', autocomplete:'tel', inputmode:'tel', placeholder:'Con código de país: 5491112345678'}),
+      campo('mail', 'Mail', {type:'email', autocomplete:'email', inputmode:'email'}),
+      campo('pass', 'Contraseña (mínimo 8 caracteres)', {type:'password', autocomplete:'new-password'}),
+      h('label', {for:'r-obj'}, 'Objetivo'), f.obj,
+      campo('peso', 'Peso actual (kg)', {type:'text', inputmode:'decimal', placeholder:'Ej: 72,5'}),
+      h('label', {for:'r-obs'}, 'Observaciones'), f.obs,
+      h('label', {class:'check', for:'r-cons', style:'margin-top:16px'}, f.cons,
+        h('span', {}, 'Acepto que mis datos personales y de salud (peso, objetivo y observaciones) se usen para armar y seguir mi entrenamiento, y que los vea mi coach.')),
+      err, btn),
+    h('button', {class:'link', onclick: () => pLogin(false)}, 'Ya tengo usuario, quiero ingresar')
+  );
+}
+
+// ---- Estado del alumno después de ingresar ----
+async function pEstado(user){
+  pantalla(h('p', {class:'sub'}, 'Cargando...'));
+  const {data:a, error} = await sb.from('alumnos').select('*').eq('id', user.id).maybeSingle();
+  A.user = user; A.a = a;
+  if (a && a.estado === 'aprobado') return pCamino(user, a);
+  const textos = {
+    pendiente: 'Tu solicitud está en revisión. Tu coach se va a comunicar con vos.',
+    rechazado: 'Por el momento no podemos avanzar con tu solicitud.',
+    baja: 'Tu cuenta está dada de baja. Hablá con tu coach si querés volver.',
+    aprobado: '¡Tu cuenta está aprobada! Tu rutina va a aparecer acá en la próxima etapa.'
+  };
+  pantalla(
+    h('h1', {}, a ? 'Hola, ' + a.nombre.split(' ')[0] : 'Hola'),
+    h('div', {class:'card'}, h('p', {class:'big'}, error ? traducir(error) : !a ? 'Tu usuario no tiene ficha de alumno. Escribile a tu coach.' : textos[a.estado])),
+    bloqueCoach(),
+    h('button', {class:'sec', onclick: () => arrancar()}, 'Actualizar'),
+    h('button', {class:'link', onclick: salir}, 'Cerrar sesión')
+  );
+}
+
+// =====================================================================
+// 5. PANEL DEL COACH
+// =====================================================================
+const C = {tab:'ingresos', nombre:'', alumnos:[], planes:[], pesos:[], plantillas:[], pagos:[], res:{}, per:{t:'mes', d:'', h:''}, tk:0, ed:null};
+
+async function cargarC(){
+  const [a, p, w, t, g, s] = await Promise.all([
+    sb.from('alumnos').select('*').order('nombre'),
+    sb.from('planes').select('*').order('nombre'),
+    sb.from('historial_peso').select('alumno_id,peso,fecha').order('fecha'),
+    sb.from('plantillas').select('*').order('nombre'),
+    sb.from('pagos').select('*').order('fecha_pago', {ascending:false}),
+    sb.rpc('resumen_alumnos')
+  ]);
+  const e = a.error || p.error || w.error || t.error || g.error || s.error;
+  if (e) return traducir(e);
+  C.alumnos = a.data; C.planes = p.data; C.pesos = w.data; C.plantillas = t.data; C.pagos = g.data;
+  C.res = {}; s.data.forEach(x => C.res[x.id_alumno] = x);
+}
+async function recargar(){ dibujarPanel(await cargarC()); }
+
+async function pPanel(perfil){
+  pantalla(h('p', {class:'sub'}, 'Cargando...'));
+  C.nombre = perfil.nombre;
+  dibujarPanel(await cargarC());
+}
+
+function dibujarPanel(errorTxt){
+  const pend = C.alumnos.filter(a => a.estado === 'pendiente').length;
+  const tabs = [['ingresos', 'Ingresos' + (pend ? ' (' + pend + ')' : '')], ['alumnos', 'Alumnos'], ['tablero', 'Tablero'], ['plantillas', 'Plantillas'], ['planes', 'Planes']];
+  const cuerpo = h('div');
+  const vista = C.ed ? (({pagos:vPagos, avance:vAvance})[C.ed.tipo] || vRutina) : ({ingresos:vIngresos, alumnos:vAlumnos, plantillas:vPlantillas, planes:vPlanes, tablero:vTablero})[C.tab];
+  vista(cuerpo);
+  pantalla(
+    h('div', {class:'bar'}, h('strong', {}, 'Hola, ' + (C.nombre || 'coach')), h('button', {class:'link mini', onclick: salir}, 'Salir')),
+    h('div', {class:'tabs'}, tabs.map(([k, l]) => h('button', {class: C.tab === k ? 'on' : '', onclick: () => { C.tab = k; C.ed = null; dibujarPanel(); }}, l))),
+    errorTxt ? h('div', {class:'msg err'}, errorTxt) : null,
+    cuerpo
+  );
+  app.className = 'ancho';
+}
+
+// ---- Pestaña Ingresos: solicitudes nuevas ----
+function vIngresos(b){
+  const pend = C.alumnos.filter(a => a.estado === 'pendiente'), rech = C.alumnos.filter(a => a.estado === 'rechazado');
+  b.append(h('h2', {}, 'Solicitudes pendientes'));
+  if (!pend.length) b.append(h('p', {class:'sub'}, 'No hay solicitudes pendientes.'));
+  pend.forEach(a => b.append(ficha(a, true)));
+  b.append(h('h2', {}, 'Rechazados'));
+  if (!rech.length) b.append(h('p', {class:'sub'}, 'No hay alumnos rechazados.'));
+  rech.forEach(a => b.append(ficha(a, false)));
+}
+
+function ficha(a, pendiente){
+  const peso = C.pesos.filter(x => x.alumno_id === a.id).pop();
+  const fila = (k, v) => h('div', {}, h('b', {}, k + ': '), v || '-');
+  const tel = (a.telefono || '').replace(/\D/g, '');
+  return h('div', {class:'card'},
+    h('strong', {}, a.nombre),
+    fila('Edad', a.fecha_nacimiento ? edad(a.fecha_nacimiento) + ' años' : ''),
+    fila('Teléfono', a.telefono), fila('Mail', a.mail), fila('Objetivo', a.objetivo),
+    fila('Peso', peso ? peso.peso + ' kg' : ''), fila('Observaciones', a.observaciones),
+    fila('Solicitud', new Date(a.fecha_creacion).toLocaleDateString('es-AR')),
+    tel ? h('a', {class:'btn', href:'https://wa.me/' + tel, target:'_blank', rel:'noopener'}, 'Escribir por WhatsApp') : null,
+    h('button', {onclick: () => aprobar(a)}, 'Aprobar'),
+    pendiente ? h('button', {class:'sec', onclick: async e => {
+      if (!confirm('¿Rechazar la solicitud de ' + a.nombre + '?')) return;
+      e.target.disabled = true;
+      const r = await sb.from('alumnos').update({estado:'rechazado'}).eq('id', a.id);
+      if (r.error) { e.target.disabled = false; return alert(traducir(r.error)); }
+      recargar();
+    }}, 'Rechazar') : null
+  );
+}
+
+// Aprobar: hay que elegir plan, inicio, duración y primer vencimiento
+function aprobar(a){
+  const activos = C.planes.filter(p => p.activo);
+  if (!activos.length) return alert('Primero creá al menos un plan activo en la pestaña Planes.');
+  pedir('Aprobar a ' + a.nombre, [
+    {k:'plan', l:'Plan', t:'select', o: activos.map(p => [p.id, p.nombre + ' · $' + p.precio])},
+    {k:'ini', l:'Fecha de inicio', t:'date', v:hoy()},
+    {k:'dur', l:'Duración (días)', t:'number', v:30},
+    {k:'pag', l:'Vencimiento del primer pago', t:'date', v:hoy()}
+  ], async v => {
+    const d = Number(v.dur), pl = activos.find(p => p.id === v.plan);
+    if (!v.ini || !v.pag || !(d >= 1)) return 'Completá la fecha de inicio, la duración y el vencimiento.';
+    const r = await sb.from('alumnos').update({
+      estado:'aprobado', plan_id:pl.id, fecha_inicio:v.ini, duracion_dias:d,
+      dias_por_semana:pl.dias_por_semana, fecha_vencimiento_pago:v.pag
+    }).eq('id', a.id);
+    if (r.error) return traducir(r.error);
+    await recargar();
+  });
+}
+
+// ---- Pestaña Alumnos: los aprobados ----
+function vAlumnos(b){
+  const ap = C.alumnos.filter(a => a.estado === 'aprobado').sort((x, y) => estSeg(x).r - estSeg(y).r);
+  const nec = ap.filter(a => estSeg(a).r < 2).length;
+  if (nec) b.append(h('div', {class:'msg err'}, '⚠ ' + nec + (nec === 1 ? ' alumno necesita' : ' alumnos necesitan') + ' seguimiento'));
+  if (!ap.length) b.append(h('p', {class:'sub'}, 'Todavía no tenés alumnos aprobados.'));
+  ap.forEach(a => {
+    const pl = C.planes.find(p => p.id === a.plan_id), al = alerta(a.fecha_vencimiento_pago), ult = C.pagos.find(x => x.alumno_id === a.id);
+    b.append(h('div', {class:'card'},
+      h('strong', {}, a.nombre),
+      h('div', {}, [a.objetivo, pl ? pl.nombre : 'Sin plan'].filter(Boolean).join(' · ')),
+      contacto(a), seguimiento(a),
+      h('div', {}, 'Inicio: ' + (a.fecha_inicio ? fmt(a.fecha_inicio) : 'sin definir')),
+      h('div', {}, ult ? 'Último pago: ' + fmt(ult.fecha_pago) + ' · $' + ult.monto : 'Sin pagos registrados'),
+      h('div', {class:'pago ' + al.c}, al.t),
+      h('button', {onclick: () => abrir('alumno', a.id)}, 'Ver y editar rutina'),
+      h('button', {class:'sec', onclick: () => abrir('avance', a.id)}, 'Ver avance'),
+      h('button', {class:'sec', onclick: () => abrir('pagos', a.id)}, 'Pagos'),
+      h('button', {class:'sec', onclick: () => cambiarPlan(a)}, 'Cambiar plan o vencimiento'),
+      h('button', {class:'link', onclick: () => darBaja(a)}, 'Dar de baja')
+    ));
+  });
+  bajas(b);
+}
+
+// ---- Pestaña Planes ----
+function vPlanes(b){
+  const campos = p => [
+    {k:'n', l:'Nombre', v:p.nombre},
+    {k:'p', l:'Precio', v:p.precio, im:'decimal'},
+    {k:'d', l:'Días por semana (1 a 7)', t:'number', v:p.dias_por_semana || 3},
+    {k:'s', l:'Seguimiento de actividad (avisa si el alumno no entrena)', t:'select', v:p.seguimiento ? 'si' : 'no', o:[['no', 'No'], ['si', 'Sí']]}
+  ];
+  const guardar = id => async v => {
+    const precio = Number(v.p.replace(',', '.')), d = Number(v.d);
+    if (!v.n) return 'Escribí el nombre del plan.';
+    if (v.p === '' || !(precio >= 0)) return 'Escribí un precio válido.';
+    if (!(d >= 1 && d <= 7)) return 'Los días por semana van de 1 a 7.';
+    const datos = {nombre:v.n, precio, dias_por_semana:d, seguimiento: v.s === 'si'};
+    const r = id ? await sb.from('planes').update(datos).eq('id', id) : await sb.from('planes').insert(datos);
+    if (r.error) return traducir(r.error);
+    await recargar();
+  };
+  b.append(h('button', {onclick: () => pedir('Nuevo plan', campos({}), guardar())}, 'Crear plan'));
+  if (!C.planes.length) b.append(h('p', {class:'sub'}, 'Todavía no creaste planes.'));
+  C.planes.forEach(p => b.append(h('div', {class:'card'},
+    h('strong', {}, p.nombre + (p.activo ? '' : ' (inactivo)')),
+    h('div', {}, '$' + p.precio + ' · ' + p.dias_por_semana + ' días por semana' + (p.seguimiento ? ' · con seguimiento' : '')),
+    h('button', {class:'sec', onclick: () => pedir('Editar plan', campos(p), guardar(p.id))}, 'Editar'),
+    h('button', {class:'sec', onclick: async () => {
+      const r = await sb.from('planes').update({activo: !p.activo}).eq('id', p.id);
+      if (r.error) return alert(traducir(r.error));
+      recargar();
+    }}, p.activo ? 'Desactivar' : 'Activar')
+  )));
+}
+
+// =====================================================================
+// 6. PLANTILLAS Y RUTINAS (el coach arma los días y los ejercicios)
+//    El mismo editor sirve para una plantilla o para la rutina de un alumno.
+// =====================================================================
+function abrir(tipo, id){ C.ed = {tipo, id}; window.scrollTo(0, 0); dibujarPanel(); }
+
+// ---- Pestaña Plantillas ----
+function vPlantillas(b){
+  b.append(h('button', {onclick: () => pedir('Nueva plantilla', [{k:'n', l:'Nombre (ej: Piernas principiante)'}], async v => {
+    if (!v.n) return 'Escribí un nombre.';
+    const r = await sb.from('plantillas').insert({nombre:v.n}).select().single();
+    if (r.error) return traducir(r.error);
+    await cargarC(); abrir('plantilla', r.data.id);
+  })}, 'Crear plantilla'));
+  if (!C.plantillas.length) b.append(h('p', {class:'sub'}, 'Todavía no creaste plantillas.'));
+  C.plantillas.forEach(p => b.append(h('div', {class:'card'},
+    h('strong', {}, p.nombre),
+    h('button', {onclick: () => abrir('plantilla', p.id)}, 'Editar rutina'),
+    h('button', {class:'sec', onclick: () => pedir('Renombrar plantilla', [{k:'n', l:'Nombre', v:p.nombre}], async v => {
+      if (!v.n) return 'Escribí un nombre.';
+      const r = await sb.from('plantillas').update({nombre:v.n}).eq('id', p.id);
+      if (r.error) return traducir(r.error);
+      await recargar();
+    })}, 'Renombrar'),
+    h('button', {class:'link', onclick: async () => {
+      if (!confirm('¿Eliminar la plantilla "' + p.nombre + '"? Las rutinas ya aplicadas a alumnos no se tocan.')) return;
+      const r = await sb.from('plantillas').delete().eq('id', p.id);
+      if (r.error) return alert(traducir(r.error));
+      recargar();
+    }}, 'Eliminar')
+  )));
+}
+
+// ---- Datos de un ejercicio (sirven para crear y para editar) ----
+const camposEj = e => [
+  {k:'n', l:'Nombre del ejercicio', v:e.nombre},
+  {k:'s', l:'Series', t:'number', v:e.series},
+  {k:'r', l:'Repeticiones (ej: 12 o 10-12)', v:e.repeticiones},
+  {k:'d', l:'Descanso entre series (segundos)', t:'number', v:e.descanso_seg},
+  {k:'p', l:'Peso sugerido (ej: 12 kg)', v:e.peso_sugerido},
+  {k:'v', l:'Link a un video (opcional)', t:'url', v:e.video_url},
+  {k:'o', l:'Notas o indicaciones (opcional)', v:e.notas},
+  {k:'ss', l:'Superserie (opcional): una letra para agrupar ejercicios, ej: A', v:e.superserie}
+];
+const datosEj = v => ({nombre:v.n, series:Number(v.s) || null, repeticiones:v.r || null,
+  descanso_seg: v.d === '' ? null : Number(v.d), peso_sugerido:v.p || null, video_url:v.v || null, notas:v.o || null, superserie: v.ss ? v.ss.toUpperCase() : null});
+function validarEj(v){
+  if (!v.n) return 'Escribí el nombre del ejercicio.';
+  if (v.d !== '' && !(Number(v.d) >= 0)) return 'El descanso tiene que ser un número de segundos.';
+  if (v.ss && v.ss.length > 12) return 'La superserie puede tener hasta 12 caracteres (por ejemplo, una letra: A).';
+  if (v.v && !/^https?:\/\//i.test(v.v)) return 'El link tiene que empezar con http:// o https://';
+}
+function filaEj(e, editar, quitar){
+  const det = [(e.series || '-') + ' x ' + (e.repeticiones || '-'),
+    e.descanso_seg != null ? 'descanso ' + e.descanso_seg + ' s' : '',
+    e.peso_sugerido ? 'peso ' + e.peso_sugerido : ''].filter(Boolean).join(' · ');
+  return h('div', {class:'ex' + (e.superserie ? ' enss' : '')},
+    h('span', {}, h('b', {}, e.nombre), e.superserie ? h('span', {class:'ss'}, '🔗 Superserie ' + e.superserie) : null, ' · ' + det,
+      e.video_url ? [' · ', h('a', {href:e.video_url, target:'_blank', rel:'noopener'}, 'ver video')] : null,
+      e.notas ? h('small', {class:'nota'}, e.notas) : null),
+    h('button', {class:'sec mini', onclick:editar}, 'Editar'),
+    h('button', {class:'sec mini', onclick:quitar}, 'Quitar'));
+}
+
+// ---- El editor de rutinas ----
+async function vRutina(b){
+  const y = window.scrollY, ed = C.ed, esAl = ed.tipo === 'alumno', col = esAl ? 'alumno_id' : 'plantilla_id';
+  const due = (esAl ? C.alumnos : C.plantillas).find(x => x.id === ed.id);
+  const titulo = h('h2', {}, (esAl ? 'Rutina de ' : 'Plantilla: ') + due.nombre);
+  b.append(titulo, h('p', {class:'sub'}, 'Cargando...'));
+  const [{data:dias, error}, rr] = await Promise.all([
+    sb.from('dias_rutina').select('*, ejercicios(*)').eq(col, ed.id).order('numero_dia'),
+    esAl ? sb.from('registros').select('*').eq('alumno_id', ed.id) : Promise.resolve({data:[]})   // lo que hizo el alumno, para el resumen del final
+  ]);
+  if (C.ed !== ed) return;                       // el coach ya cambió de pantalla
+  b.replaceChildren(titulo);
+  if (error) return b.append(h('div', {class:'msg err'}, traducir(error)));
+  const regs = {}; (rr.data || []).forEach(x => regs[x.ejercicio_id] = x);
+
+  const maxN = Math.max(0, ...dias.map(d => d.numero_dia)), hitos = dias.filter(d => d.es_hito).length;
+  const refrescar = () => dibujarPanel();
+
+  // Semanas de la rutina: cada hito cierra una. De cada una guardamos el primer y el último número de día.
+  const semanas = [], semDe = {};
+  { let cur = null;
+    dias.forEach(d => { if (!cur) { cur = {n:semanas.length + 1, desde:d.numero_dia}; semanas.push(cur); } cur.hasta = d.numero_dia; semDe[d.id] = cur.n; if (d.es_hito) cur = null; }); }
+  const duplicarSem = w => pedir('Duplicar la Semana ' + w.n, [
+    {k:'c', l:'Cantidad de copias (se agregan al final de la rutina; después editás lo que quieras)', t:'number', v:1}
+  ], async v => {
+    const n = Number(v.c);
+    if (!Number.isInteger(n) || n < 1 || n > 12) return 'Las copias van de 1 a 12.';
+    const r = await sb.rpc('duplicar_semana', {p_alumno: esAl ? ed.id : null, p_plantilla: esAl ? null : ed.id, p_desde:w.desde, p_hasta:w.hasta, p_copias:n});
+    if (r.error) return traducir(r.error);
+    refrescar();
+  });
+
+  const nuevoDia = hito => pedir(hito ? 'Nuevo hito' : 'Nuevo día', [
+    {k:'t', l: hito ? 'Título del hito' : 'Título (opcional, ej: Piernas)', v: hito ? 'Semana ' + (hitos + 1) + ' completa' : ''}
+  ], async v => {
+    if (hito && !v.t) return 'Escribí un título.';
+    const r = await sb.from('dias_rutina').insert({[col]:ed.id, numero_dia:maxN + 1, titulo:v.t || null, es_hito:hito});
+    if (r.error) return traducir(r.error);
+    refrescar();
+  });
+  const aplicar = () => {
+    if (!C.plantillas.length) return alert('Primero creá una plantilla en la pestaña Plantillas.');
+    pedir('Aplicar plantilla', [{k:'p', l:'Plantilla (se agrega al final de la rutina actual)', t:'select', o:C.plantillas.map(p => [p.id, p.nombre])}], async v => {
+      const r = await sb.rpc('asignar_plantilla', {p_plantilla:v.p, p_alumno:ed.id});
+      if (r.error) return traducir(r.error);
+      refrescar();
+    });
+  };
+  const nuevoEj = (d, ult) => pedir('Nuevo ejercicio', camposEj({series:3, repeticiones:'12'}), async v => {
+    const m = validarEj(v); if (m) return m;
+    const r = await sb.from('ejercicios').insert({dia_id:d.id, orden:ult + 1, ...datosEj(v)});
+    if (r.error) return traducir(r.error);
+    refrescar();
+  });
+  const editarEj = e => pedir('Editar ejercicio', [...camposEj(e), {k:'or', l:'Orden dentro del día (1, 2, 3...)', t:'number', v:e.orden}], async v => {
+    const m = validarEj(v); if (m) return m;
+    const r = await sb.from('ejercicios').update({...datosEj(v), orden:Number(v.or) || 0}).eq('id', e.id);
+    if (r.error) return traducir(r.error);
+    refrescar();
+  });
+  const quitarEj = async e => {
+    if (!confirm('¿Quitar "' + e.nombre + '" de este día?')) return;
+    const r = await sb.from('ejercicios').update({archivado:true}).eq('id', e.id);   // se archiva: no se pierde el historial
+    if (r.error) return alert(traducir(r.error));
+    refrescar();
+  };
+  const editarDia = d => pedir('Editar día ' + d.numero_dia, [{k:'t', l:'Título', v:d.titulo}], async v => {
+    if (d.es_hito && !v.t) return 'El hito necesita un título.';
+    const r = await sb.from('dias_rutina').update({titulo:v.t || null}).eq('id', d.id);
+    if (r.error) return traducir(r.error);
+    refrescar();
+  });
+  const eliminarDia = async d => {
+    if (!confirm('¿Eliminar el día ' + d.numero_dia + ' con todos sus ejercicios?')) return;
+    const r = await sb.from('dias_rutina').delete().eq('id', d.id);
+    if (r.error) return alert(traducir(r.error));
+    refrescar();
+  };
+
+  b.append(h('div', {class:'card'},
+    h('button', {onclick: () => nuevoDia(false)}, 'Agregar día'),
+    h('button', {class:'sec', onclick: () => nuevoDia(true)}, 'Agregar hito (fin de semana)'),
+    esAl ? h('button', {class:'sec', onclick: aplicar}, 'Aplicar una plantilla') : null,
+    h('button', {class:'link', onclick: () => { C.ed = null; dibujarPanel(); }}, 'Volver')));
+  if (!dias.length) b.append(h('p', {class:'sub'}, 'Todavía no hay días. Agregá el primero' + (esAl ? ' o aplicá una plantilla.' : '.')));
+
+  let sem = 0, nueva = true;                     // los días se agrupan en semanas: cada hito cierra una
+  dias.forEach(d => {
+    if (nueva) { const w = semanas[sem++]; b.append(h('div', {class:'bar sh'}, h('h2', {}, 'Semana ' + w.n), h('button', {class:'sec mini', onclick: () => duplicarSem(w)}, 'Duplicar semana'))); nueva = false; }
+    const ex = (d.ejercicios || []).filter(e => !e.archivado).sort((p, q) => p.orden - q.orden);
+    b.append(h('div', {class:'card'},
+      h('strong', {}, d.es_hito ? '★ ' + d.titulo : 'Día ' + d.numero_dia + (d.titulo ? ' · ' + d.titulo : '')),
+      ex.map(e => filaEj(e, () => editarEj(e), () => quitarEj(e))),
+      d.es_hito ? null : h('button', {class:'sec', onclick: () => nuevoEj(d, Math.max(0, ...ex.map(e => e.orden)))}, 'Agregar ejercicio'),
+      h('button', {class:'link', onclick: () => editarDia(d)}, 'Editar título'),
+      d.numero_dia === maxN ? h('button', {class:'link', onclick: () => eliminarDia(d)}, 'Eliminar este día') : null));
+    if (d.es_hito) nueva = true;
+  });
+  if (esAl && dias.length) b.append(h('h2', {}, '📊 Resumen de ejercicios'),
+    h('p', {class:'sub'}, 'Real = el último peso que anotó el alumno. Δ = diferencia con el primer peso con el que hizo ese ejercicio.'),
+    tablaResumen(dias, regs, semDe));
+  window.scrollTo(0, y);
+}
+
+// =====================================================================
+// 7. VISTA DEL ALUMNO: su camino y cada día de entrenamiento
+// =====================================================================
+const A = {user:null, a:null, regs:{}};
+
+function pDia(dia){
+  const ex = (dia.ejercicios || []).filter(e => !e.archivado).sort((p, q) => p.orden - q.orden);
+  const F = {}, err = h('div', {class:'msg err hide', role:'alert'}), btn = h('button', {type:'submit'}, 'Guardar el día');
+  const tarjetas = ex.map(e => {
+    const r = A.regs[e.id] || {};
+    const f = F[e.id] = {
+      hecho: h('input', {id:'h-' + e.id, type:'checkbox', checked: r.hecho}),
+      peso: h('input', {id:'p-' + e.id, type:'text', inputmode:'decimal', value: r.peso_usado, placeholder:'Ej: 12'}),
+      com: h('input', {id:'c-' + e.id, type:'text', value: r.comentario, placeholder:'Opcional'})
+    };
+    const det = [(e.series || '-') + ' x ' + (e.repeticiones || '-'), e.descanso_seg != null ? 'descanso ' + e.descanso_seg + ' s' : '',
+      e.peso_sugerido ? 'peso sugerido ' + e.peso_sugerido : ''].filter(Boolean).join(' · ');
+    return h('div', {class:'card' + (e.superserie ? ' enss' : '')}, h('strong', {}, e.nombre), e.superserie ? h('span', {class:'ss'}, '🔗 Superserie ' + e.superserie) : null, h('div', {}, det),
+      e.notas ? h('div', {class:'nota'}, e.notas) : null,
+      e.video_url ? h('div', {}, h('a', {href:e.video_url, target:'_blank', rel:'noopener'}, 'Ver video')) : null,
+      h('label', {class:'check', for:'h-' + e.id, style:'margin-top:14px'}, f.hecho, h('span', {}, 'Lo hice')),
+      h('label', {for:'p-' + e.id}, 'Peso que usaste (kg)'), f.peso,
+      h('label', {for:'c-' + e.id}, 'Comentario'), f.com);
+  });
+  const guardar = async () => {
+    const filas = [];
+    for (const e of ex) {
+      const f = F[e.id], r = A.regs[e.id] || {}, txt = f.peso.value.trim().replace(',', '.');
+      const peso = txt === '' ? null : Number(txt), com = f.com.value.trim() || null, hecho = f.hecho.checked;
+      if (peso !== null && !(peso >= 0 && peso < 1000)) return 'Revisá el peso de "' + e.nombre + '": tiene que ser un número.';
+      if (hecho !== !!r.hecho || peso !== (r.peso_usado ?? null) || com !== (r.comentario ?? null))   // solo se guarda lo que cambió
+        filas.push({alumno_id:A.user.id, ejercicio_id:e.id, hecho, peso_usado:peso, comentario:com, fecha:hoy()});
+    }
+    if (filas.length) {
+      const res = await sb.from('registros').upsert(filas, {onConflict:'alumno_id,ejercicio_id'});
+      if (res.error) return traducir(res.error);
+    }
+    A.toast = ex.every(e => F[e.id].hecho.checked) ? '🎉 ¡Día ' + dia.numero_dia + ' completado! Seguí así.' : 'Guardado ✓';
+    pCamino(A.user, A.a);
+  };
+  pantalla(
+    h('button', {class:'link mini', onclick: () => pCamino(A.user, A.a)}, '← Volver al camino'),
+    h('h1', {}, 'Día ' + dia.numero_dia),
+    dia.titulo ? h('p', {class:'sub'}, dia.titulo) : null,
+    ex.length
+      ? h('form', {novalidate:true, onsubmit: e => { e.preventDefault(); correr(btn, err, guardar); }},
+          ex.some(e => e.superserie) ? h('p', {class:'sub'}, '🔗 Los ejercicios con la misma letra de superserie se hacen seguidos, uno detrás del otro.') : null, tarjetas, err, btn)
+      : h('div', {class:'card'}, 'Este día todavía no tiene ejercicios.')
+  );
+}
+
+// =====================================================================
+// 8. PAGOS Y CAMBIO DE PLAN (coach)
+// =====================================================================
+
+// Suma n meses a una fecha 'AAAA-MM-DD' cuidando los fines de mes (31 de enero + 1 mes = 28 de febrero)
+function sumarMes(f, n){
+  const [y, m, d] = f.split('-').map(Number), x = new Date(Date.UTC(y, m - 1 + n, 1));
+  const ult = new Date(Date.UTC(x.getUTCFullYear(), x.getUTCMonth() + 1, 0)).getUTCDate();
+  x.setUTCDate(Math.min(d, ult));
+  return x.toISOString().slice(0, 10);
+}
+
+function vPagos(b){
+  const a = C.alumnos.find(x => x.id === C.ed.id), pl = C.planes.find(p => p.id === a.plan_id), al = alerta(a.fecha_vencimiento_pago);
+  const lista = C.pagos.filter(p => p.alumno_id === a.id);
+  b.append(
+    h('h2', {}, 'Pagos de ' + a.nombre),
+    h('div', {class:'card'},
+      h('div', {}, 'Plan: ' + (pl ? pl.nombre + ' · $' + pl.precio : 'sin plan')),
+      h('div', {}, 'Vencimiento: ' + (a.fecha_vencimiento_pago ? fmt(a.fecha_vencimiento_pago) : 'sin fecha')),
+      h('div', {class:'pago ' + al.c}, al.t),
+      h('button', {onclick: () => registrarPago(a, pl)}, 'Registrar pago'),
+      h('button', {class:'link', onclick: () => { C.ed = null; dibujarPanel(); }}, 'Volver'))
+  );
+  if (!lista.length) b.append(h('p', {class:'sub'}, 'Todavía no hay pagos registrados.'));
+  lista.forEach(p => b.append(h('div', {class:'card'},
+    h('strong', {}, fmt(p.fecha_pago) + ' · $' + p.monto),
+    h('div', {}, (p.medio || '').replace('_', ' ') + (p.periodo_hasta ? ' · cubre hasta ' + fmt(p.periodo_hasta) : '')),
+    p.nota ? h('div', {class:'nota'}, p.nota) : null)));
+}
+
+function registrarPago(a, pl){
+  pedir('Registrar pago de ' + a.nombre, [
+    {k:'m', l:'Monto ($)', v: pl ? pl.precio : '', im:'decimal'},
+    {k:'f', l:'Fecha del pago', t:'date', v:hoy()},
+    {k:'n', l:'Meses que cubre', t:'number', v:1},
+    {k:'e', l:'Medio de pago', t:'select', o:[['transferencia', 'Transferencia'], ['efectivo', 'Efectivo'], ['mercado_pago', 'Mercado Pago'], ['otro', 'Otro']]},
+    {k:'o', l:'Nota (opcional)'}
+  ], async v => {
+    const monto = Number(v.m.replace(',', '.')), meses = Number(v.n);
+    if (v.m === '' || !(monto >= 0)) return 'Escribí un monto válido.';
+    if (!v.f) return 'Elegí la fecha del pago.';
+    if (!Number.isInteger(meses) || meses < 1 || meses > 12) return 'Los meses van de 1 a 12.';
+    // Si pagó antes de que venza, el nuevo período sigue desde el vencimiento; si pagó tarde, desde el día del pago
+    const desde = a.fecha_vencimiento_pago && a.fecha_vencimiento_pago >= v.f ? a.fecha_vencimiento_pago : v.f;
+    const hasta = sumarMes(desde, meses);
+    const r = await sb.from('pagos').insert({alumno_id:a.id, plan_id:a.plan_id, monto, fecha_pago:v.f, periodo_desde:desde, periodo_hasta:hasta, medio:v.e, nota:v.o || null});
+    if (r.error) return traducir(r.error);
+    const u = await sb.from('alumnos').update({fecha_vencimiento_pago:hasta}).eq('id', a.id);
+    if (u.error) return traducir(u.error);
+    await recargar();
+  });
+}
+
+function cambiarPlan(a){
+  const op = C.planes.filter(p => p.activo || p.id === a.plan_id);
+  if (!op.length) return alert('Primero creá un plan en la pestaña Planes.');
+  pedir('Plan de ' + a.nombre, [
+    {k:'p', l:'Plan', t:'select', v:a.plan_id, o: op.map(p => [p.id, p.nombre + ' · $' + p.precio + (p.activo ? '' : ' (inactivo)')])},
+    {k:'f', l:'Vencimiento del pago', t:'date', v:a.fecha_vencimiento_pago}
+  ], async v => {
+    const pl = op.find(p => p.id === v.p);
+    const r = await sb.from('alumnos').update({plan_id:pl.id, dias_por_semana:pl.dias_por_semana, fecha_vencimiento_pago:v.f || null}).eq('id', a.id);
+    if (r.error) return traducir(r.error);
+    await recargar();
+  });
+}
+
+// =====================================================================
+// 9. AVANCE DEL ALUMNO (coach) Y PESO AL CERRAR CADA HITO (alumno)
+// =====================================================================
+
+// Gráfico de línea del peso corporal (SVG armado con números, nunca con texto del usuario)
+function grafPeso(ps){
+  const W = 320, H = 140, P = 28, v = ps.map(p => Number(p.peso));
+  let mn = Math.min(...v), mx = Math.max(...v);
+  if (mn === mx) { mn -= 1; mx += 1; }
+  const x = i => P + i * (W - 2 * P) / (v.length - 1), y = val => H - P - (val - mn) * (H - 2 * P) / (mx - mn);
+  return '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" role="img" aria-label="Evolución del peso">' +
+    '<polyline points="' + v.map((val, i) => x(i).toFixed(1) + ',' + y(val).toFixed(1)).join(' ') + '" fill="none" stroke-width="3" stroke-linejoin="round" style="stroke:var(--pri)"/>' +
+    v.map((val, i) => '<circle cx="' + x(i).toFixed(1) + '" cy="' + y(val).toFixed(1) + '" r="4" style="fill:var(--pri)"/>').join('') +
+    '<text x="' + P + '" y="14" font-size="11" style="fill:var(--sub)">' + mx + ' kg</text>' +
+    '<text x="' + P + '" y="' + (H - 6) + '" font-size="11" style="fill:var(--sub)">' + mn + ' kg</text></svg>';
+}
+
+async function vAvance(b){
+  const ed = C.ed, a = C.alumnos.find(x => x.id === ed.id), y0 = window.scrollY;
+  const cab = [h('button', {class:'link mini', onclick: () => { C.ed = null; dibujarPanel(); }}, '← Volver a alumnos'), h('h2', {}, 'Avance de ' + a.nombre)];
+  b.append(...cab, h('p', {class:'sub'}, 'Cargando...'));
+  const [d, r, w] = await Promise.all([
+    sb.from('dias_rutina').select('*, ejercicios(*)').eq('alumno_id', a.id).order('numero_dia'),
+    sb.from('registros').select('*').eq('alumno_id', a.id),
+    sb.from('historial_peso').select('*').eq('alumno_id', a.id).order('fecha')
+  ]);
+  if (C.ed !== ed) return;
+  b.replaceChildren(...cab);
+  if (d.error || r.error || w.error) return b.append(h('div', {class:'msg err'}, traducir(d.error || r.error || w.error)));
+
+  // ---- Datos base ----
+  const dias = d.data, regs = {}, info = {};
+  r.data.forEach(x => regs[x.ejercicio_id] = x);
+  let total = 0, hechos = 0, totEj = 0, hecEj = 0;
+  dias.forEach(dia => {
+    const ex = dia.ejercicios || [];
+    ex.forEach(e => info[e.id] = {nombre:e.nombre, dia:dia.numero_dia, orden:e.orden, arch:e.archivado});
+    if (dia.es_hito) return;
+    const vivos = ex.filter(e => !e.archivado);
+    total++;
+    totEj += vivos.length; hecEj += vivos.filter(e => regs[e.id] && regs[e.id].hecho).length;
+    if (vivos.length && vivos.every(e => regs[e.id] && regs[e.id].hecho)) hechos++;
+  });
+  const act = {}; let ultimo = null;                 // act: fecha -> ejercicios marcados ese día
+  r.data.filter(x => x.hecho).forEach(x => {
+    const t = x.marcado_en ? new Date(x.marcado_en) : null, f = t ? t.toLocaleDateString('en-CA') : x.fecha;
+    (act[f] = act[f] || []).push({t, x});
+    const k = t || new Date(x.fecha + 'T12:00');
+    if (!ultimo || k > ultimo) ultimo = k;
+  });
+
+  // ---- Cumplimiento ----
+  const pct = totEj ? Math.round(hecEj * 100 / totEj) : 0, uf = ultimo && ultimo.toLocaleDateString('en-CA');
+  const hace = ultimo ? difDias(uf, hoy()) : 0;
+  b.append(h('div', {class:'card'}, h('strong', {}, 'Cumplimiento'),
+    h('div', {}, pct + '% de la rutina · ' + hecEj + ' de ' + totEj + ' ejercicios · ' + hechos + ' de ' + total + ' días completos'),
+    h('div', {class:'prog'}, h('i', {style:'width:' + pct + '%'})),
+    h('div', {}, ultimo ? 'Último entrenamiento: ' + fmt(uf) + (hace === 0 ? ' (hoy)' : ' (hace ' + hace + (hace === 1 ? ' día)' : ' días)')) : 'Todavía no marcó ningún ejercicio.')));
+
+  // ---- Peso corporal ----
+  const ps = w.data;
+  b.append(h('h2', {}, 'Peso corporal'));
+  if (!ps.length) b.append(h('p', {class:'sub'}, 'No hay pesos cargados.'));
+  else {
+    const p0 = ps[0], p1 = ps[ps.length - 1], dif = Math.round((p1.peso - p0.peso) * 10) / 10, g = h('div');
+    g.innerHTML = ps.length > 1 ? grafPeso(ps) : '';
+    b.append(h('div', {class:'card'},
+      h('div', {}, h('b', {}, 'Inicio: '), p0.peso + ' kg (' + fmt(p0.fecha) + ')'),
+      h('div', {}, h('b', {}, 'Actual: '), p1.peso + ' kg (' + fmt(p1.fecha) + ')'),
+      h('div', {}, h('b', {}, 'Cambio: '), (dif > 0 ? '+' : '') + dif + ' kg'),
+      g,
+      ps.slice().reverse().slice(0, 8).map(p => { const ht = dias.find(x => x.id === p.hito_id);
+        return h('div', {class:'nota'}, fmt(p.fecha) + ' · ' + p.peso + ' kg' + (p.hito_id ? (ht ? ' · ' + ht.titulo : '') : p.id === ps[0].id ? ' · al registrarse' : ' · carga libre')); })));
+  }
+
+  // ---- Calendario del mes ----
+  let mes = new Date(), sel = null;
+  const calBox = h('div', {class:'card'}), detBox = h('div');
+  const dibujarCal = () => {
+    const Y = mes.getFullYear(), M = mes.getMonth(), n = new Date(Y, M + 1, 0).getDate(), off = (new Date(Y, M, 1).getDay() + 6) % 7;
+    const celdas = ['L', 'M', 'X', 'J', 'V', 'S', 'D'].map(l => h('span', {}, l));
+    for (let i = 0; i < off; i++) celdas.push(h('span'));
+    for (let k = 1; k <= n; k++) {
+      const f = Y + '-' + String(M + 1).padStart(2, '0') + '-' + String(k).padStart(2, '0');
+      celdas.push(h('button', {type:'button', class:(act[f] ? 'on ' : '') + (f === sel ? 'sel' : ''), 'aria-label':k + (act[f] ? ', entrenó' : ''),
+        onclick: () => { sel = f; dibujarCal(); }}, k));
+    }
+    calBox.replaceChildren(
+      h('div', {class:'bar'}, h('button', {class:'sec mini', onclick: () => { mes = new Date(Y, M - 1, 1); dibujarCal(); }}, '‹'),
+        h('strong', {style:'text-align:center'}, mes.toLocaleDateString('es-AR', {month:'long', year:'numeric'})),
+        h('button', {class:'sec mini', onclick: () => { mes = new Date(Y, M + 1, 1); dibujarCal(); }}, '›')),
+      h('div', {class:'calg'}, celdas));
+    const lista = (act[sel] || []).slice().sort((p, q) => (p.t || 0) - (q.t || 0));
+    detBox.replaceChildren(sel ? h('div', {class:'card'}, h('strong', {}, fmt(sel)),
+      lista.length ? lista.map(({t, x}) => { const i = info[x.ejercicio_id] || {};
+        return h('div', {}, (t ? t.toLocaleTimeString('es-AR', {hour:'2-digit', minute:'2-digit'}) + ' · ' : '') + 'Día ' + i.dia + ' · ' + i.nombre + (x.peso_usado != null ? ' · ' + x.peso_usado + ' kg' : '')); })
+        : h('div', {}, 'No marcó ejercicios este día.')) : null);
+  };
+  dibujarCal();
+  b.append(h('h2', {}, 'Calendario de entrenamientos'), h('p', {class:'sub'}, 'Los días en verde son los que marcó ejercicios. Tocá un día para ver el detalle y la hora.'), calBox, detBox);
+
+  // ---- Pesos en los ejercicios: con cuánto empezó y con cuánto va (cada ejercicio cuenta una vez, aunque se repita en varias semanas) ----
+  const pn = Object.values(pesosPorNombre(dias, regs)).sort((p, q) => (p.tIni > q.tIni) - (p.tIni < q.tIni));
+  b.append(h('h2', {}, 'Pesos en los ejercicios'));
+  if (!pn.length) b.append(h('p', {class:'sub'}, 'Todavía no anotó pesos en los ejercicios.'));
+  pn.forEach(x => {
+    const dif = Math.round((x.act - x.ini) * 100) / 100;
+    b.append(h('div', {class:'card'}, h('strong', {}, x.n),
+      h('div', {}, 'Empezó con ' + x.ini + ' kg · Ahora ' + x.act + ' kg'),
+      h('div', {class:'pago ' + (dif > 0 ? 'verde' : 'gris')}, dif === 0 ? 'Sin cambios' : (dif > 0 ? '+' : '') + dif + ' kg')));
+  });
+  b.append(h('h2', {}, 'Fotos de progreso'), galeria(a.id, false));
+  window.scrollTo(0, y0);
+}
+
+// =====================================================================
+// 10. SEGUIMIENTO Y CONTACTO EN LA LISTA DE ALUMNOS (coach)
+// =====================================================================
+
+// Teléfono con botones para llamar o escribir por WhatsApp
+function contacto(a){
+  const t = (a.telefono || '').replace(/[^\d+]/g, ''), wa = t.replace(/\D/g, '');
+  if (!wa) return null;
+  return h('div', {class:'acc'},
+    h('a', {class:'btn', href:'tel:' + t}, '📞 ' + a.telefono),
+    h('a', {class:'btn', href:'https://wa.me/' + wa, target:'_blank', rel:'noopener'}, 'WhatsApp'));
+}
+
+// Estado de seguimiento. Solo aplica a planes con "seguimiento" activado.
+// r = prioridad: 0 rojo, 1 amarillo, 2 normal, 3 sin seguimiento
+function estSeg(a){
+  const pl = C.planes.find(p => p.id === a.plan_id), s = C.res[a.id];
+  if (!pl || !pl.seguimiento || !s) return {r:3};
+  if (!s.dias_total) return {r:2, c:'gris', t:'Sin rutina cargada'};
+  if (s.dias_hechos >= s.dias_total) return {r:2, c:'verde', t:'Completó toda la rutina 🎉'};
+  const N = a.dias_por_semana || pl.dias_por_semana, dow = (new Date().getDay() + 6) % 7 + 1;    // lunes = 1 ... domingo = 7
+  const f = s.ultimo ? new Date(s.ultimo).toLocaleDateString('en-CA') : null, hace = f ? difDias(f, hoy()) : null;
+  if (!f) return a.fecha_inicio && difDias(a.fecha_inicio, hoy()) >= 3 ? {r:0, c:'rojo', t:'Todavía no entrenó'} : {r:2, c:'gris', t:'Todavía no entrenó'};
+  if (hace >= 5) return {r:0, c:'rojo', t:'Sin entrenar hace ' + hace + ' días'};
+  if (s.dias_semana < Math.floor(N * (dow - 1) / 7)) return {r:1, c:'amarillo', t:'Va atrasado esta semana: ' + s.dias_semana + ' de ' + N + ' días'};
+  return {r:2, c:'verde', t:'Al día con la rutina'};
+}
+
+// Resumen del avance, con el último entrenamiento resaltado
+function seguimiento(a){
+  const e = estSeg(a), s = C.res[a.id];
+  if (e.r === 3) return null;
+  const f = s.ultimo ? new Date(s.ultimo).toLocaleDateString('en-CA') : null, hace = f ? difDias(f, hoy()) : null;
+  const pct = s.ej_total ? Math.round(s.ej_hechos * 100 / s.ej_total) : 0;
+  return h('div', {class:'seg ' + e.c},
+    h('div', {class:'pago ' + e.c}, e.t),
+    h('div', {class:'ult'}, 'Último entrenamiento: ' + (f ? (hace === 0 ? 'hoy' : 'hace ' + hace + (hace === 1 ? ' día' : ' días')) + ' (' + fmt(f) + ')' : 'todavía ninguno')),
+    h('div', {}, 'Esta semana: ' + s.dias_semana + ' de ' + (a.dias_por_semana || '-') + ' días'),
+    h('div', {class:'prog'}, h('i', {style:'width:' + pct + '%'})),
+    h('div', {class:'nota'}, 'Rutina: ' + pct + '% · ' + (s.ej_hechos || 0) + ' de ' + (s.ej_total || 0) + ' ejercicios · ' + s.dias_hechos + ' de ' + s.dias_total + ' días completos'));
+}
+
+// =====================================================================
+// 11. INTERFAZ DEL ALUMNO (camino, progreso, mi plan), FOTOS Y BAJAS
+// =====================================================================
+const COACH_WA = '5491168132317', COACH_IG = 'https://www.instagram.com/matiasgallegocoach/';
+
+// Contacto con el coach: Instagram destacado y botón de WhatsApp
+function bloqueCoach(){
+  const n = A.a ? A.a.nombre.split(' ')[0] : '';
+  return h('div', {},
+    h('a', {class:'ig', href:COACH_IG, target:'_blank', rel:'noopener'}, h('b', {}, '@matiasgallegocoach'), 'Seguí a tu coach en Instagram: entrenamientos, tips y más 📸'),
+    h('a', {class:'btn', href:'https://wa.me/' + COACH_WA + '?text=' + encodeURIComponent('Hola coach, soy ' + n + '.'), target:'_blank', rel:'noopener'}, '💬 Hablar con mi coach'));
+}
+
+// Reduce la foto a 1280 px y la convierte en JPEG liviano antes de subirla
+function achicar(file){
+  return new Promise((ok, mal) => {
+    const img = new Image(), u = URL.createObjectURL(file);
+    img.onload = () => {
+      const k = Math.min(1, 1280 / Math.max(img.width, img.height)), c = document.createElement('canvas');
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(u);
+      c.toBlob(bl => bl ? ok(bl) : mal(new Error('No se pudo procesar la foto.')), 'image/jpeg', 0.82);
+    };
+    img.onerror = () => mal(new Error('Esa imagen no se pudo abrir.'));
+    img.src = u;
+  });
+}
+
+// Galería de fotos de un alumno. La usa el alumno (puede borrar) y el coach (solo mira).
+function galeria(id, borrable){
+  const box = h('div', {class:'fotos'}, h('p', {class:'sub'}, 'Cargando...'));
+  (async () => {
+    const {data, error} = await sb.from('fotos_progreso').select('*').eq('alumno_id', id).order('fecha', {ascending:false}).order('creado', {ascending:false});
+    if (error) return box.replaceChildren(h('div', {class:'msg err'}, traducir(error)));
+    if (!data.length) return box.replaceChildren(h('p', {class:'sub'}, borrable ? 'Todavía no subiste fotos.' : 'El alumno todavía no subió fotos.'));
+    const u = await sb.storage.from('fotos-progreso').createSignedUrls(data.map(f => f.ruta), 3600);
+    const url = {}; (u.data || []).forEach(x => url[x.path] = x.signedUrl);
+    box.replaceChildren(...data.map(f => h('figure', {class:'foto'},
+      h('a', {href:url[f.ruta], target:'_blank', rel:'noopener'}, h('img', {src:url[f.ruta], alt:'Foto del ' + fmt(f.fecha), loading:'lazy'})),
+      h('figcaption', {}, fmt(f.fecha)),
+      borrable ? h('button', {class:'link mini', onclick: async () => {
+        if (!confirm('¿Borrar esta foto?')) return;
+        await sb.storage.from('fotos-progreso').remove([f.ruta]);
+        const r = await sb.from('fotos_progreso').delete().eq('id', f.id);
+        if (r.error) return alert(traducir(r.error));
+        box.replaceWith(galeria(id, borrable));
+      }}, 'Borrar') : null)));
+  })();
+  return box;
+}
+
+// ---- Alumno: carga de datos ----
+async function pCamino(user, a, silencioso){        // silencioso = actualiza sin pantalla de carga
+  A.user = user; A.a = a;
+  const y = silencioso ? window.scrollY : 0;
+  if (!silencioso) pantalla(h('p', {class:'sub'}, 'Cargando...'));
+  const [d, r, w, g, p, al] = await Promise.all([
+    sb.from('dias_rutina').select('*, ejercicios(*)').eq('alumno_id', user.id).order('numero_dia'),
+    sb.from('registros').select('*').eq('alumno_id', user.id),
+    sb.from('historial_peso').select('*').eq('alumno_id', user.id).order('fecha'),
+    sb.from('pagos').select('*').eq('alumno_id', user.id).order('fecha_pago', {ascending:false}),
+    sb.from('planes').select('*'),                       // por seguridad, el alumno solo recibe su propio plan
+    sb.from('alumnos').select('*').eq('id', user.id).maybeSingle()
+  ]);
+  const e = d.error || r.error || w.error || g.error || p.error || al.error;
+  if (e) return silencioso ? null : pantalla(h('div', {class:'msg err'}, traducir(e)), h('button', {onclick: () => pCamino(user, a)}, 'Reintentar'), h('button', {class:'link', onclick: salir}, 'Cerrar sesión'));
+  A.a = al.data || a; A.dias = d.data; A.pesos = w.data; A.pagos = g.data; A.plan = p.data[0] || null;
+  A.regs = {}; r.data.forEach(x => A.regs[x.ejercicio_id] = x);
+  A.hitoPeso = {}; w.data.forEach(x => { if (x.hito_id) A.hitoPeso[x.hito_id] = x; });
+  if (A.a.estado !== 'aprobado') return pEstado(user);      // por ejemplo, si el coach lo dio de baja
+  dibujarAl();
+  window.scrollTo(0, y);
+}
+
+// ---- Alumno: pantalla principal con tres pestañas ----
+function dibujarAl(){
+  const a = A.a, regs = A.regs, tab = A.tab || 'camino', N = a.dias_por_semana || (A.plan && A.plan.dias_por_semana) || 3;
+
+  // Cálculos: avance, semana actual, racha de semanas cumplidas
+  let bloque = [], actual = null, hechos = 0, total = 0, hitosOk = 0, sem = 1, hecEj = 0, totEj = 0;
+  const semStats = {};                                   // por cada semana de la rutina: días hechos y totales
+  const items = A.dias.map(dia => {
+    const ex = (dia.ejercicios || []).filter(e => !e.archivado), mi = sem; let ok, nh = 0;
+    const s = semStats[mi] = semStats[mi] || {h:0, t:0, eh:0, et:0};
+    if (dia.es_hito) { ok = bloque.every(Boolean); if (ok && bloque.length) hitosOk++; bloque = []; sem++; }
+    else {
+      nh = ex.filter(e => regs[e.id] && regs[e.id].hecho).length;            // ejercicios hechos de este día
+      ok = ex.length > 0 && nh === ex.length; bloque.push(ok);
+      total++; s.t++; totEj += ex.length; hecEj += nh; s.et += ex.length; s.eh += nh;
+      if (ok) { hechos++; s.h++; }
+    }
+    if (!ok && !actual) actual = dia.id;
+    return {dia, ok, sem:mi, nh, ne:ex.length};
+  });
+  const pct = totEj ? Math.round(hecEj * 100 / totEj) : 0;                   // el avance se mide por ejercicios hechos
+  const fechas = new Set(); let hechosEj = 0;
+  Object.values(regs).filter(x => x.hecho).forEach(x => { hechosEj++; fechas.add(x.marcado_en ? new Date(x.marcado_en).toLocaleDateString('en-CA') : x.fecha); });
+  const mas = (f, n) => { const d = new Date(f + 'T12:00'); d.setDate(d.getDate() + n); return d.toLocaleDateString('en-CA'); };
+  const lun = f => mas(f, -((new Date(f + 'T12:00').getDay() + 6) % 7));
+  const porSem = {}; fechas.forEach(f => { const k = lun(f); porSem[k] = (porSem[k] || 0) + 1; });
+  const lunes = lun(hoy()), semana = porSem[lunes] || 0;
+  let racha = 0, k = porSem[lunes] >= N ? lunes : mas(lunes, -7);      // la semana en curso no corta la racha
+  while (porSem[k] >= N) { racha++; k = mas(k, -7); }
+
+  const falta = N - semana, fin = totEj > 0 && hecEj === totEj;
+  const mensaje = fin ? '¡Completaste toda tu rutina! Escribile a tu coach para armar la próxima 🏆'
+    : !hechosEj ? '¡Hoy es un gran día para empezar! El primer paso es el más importante 💪'
+    : fechas.has(hoy()) ? '¡Hoy ya entrenaste! Descansá, comé bien y recuperate 🔥'
+    : racha >= 2 ? '¡Llevás ' + racha + ' semanas seguidas cumpliendo tu meta! No lo cortes 🔥'
+    : falta > 0 ? (falta === 1 ? 'Te falta 1 entrenamiento' : 'Te faltan ' + falta + ' entrenamientos') + ' para cumplir tu semana. ¡Vos podés! 💪'
+    : '¡Cumpliste tu meta de la semana! Estás cada vez más cerca 🎯';
+  const logros = [
+    ['🚀', 'Primer paso', 'Marcaste tu primer ejercicio', hechosEj >= 1],
+    ['✅', 'Día completo', 'Completaste un día entero', hechos >= 1],
+    ['⭐', 'Semana cerrada', 'Cerraste una semana', hitosOk >= 1],
+    ['📅', 'Semana perfecta', 'Cumpliste tu meta semanal', Object.values(porSem).some(c => c >= N)],
+    ['🔥', 'Constante', '2 semanas seguidas cumpliendo', racha >= 2],
+    ['⚖️', 'Peso al día', 'Cargaste tu peso en un hito', Object.keys(A.hitoPeso).length >= 1],
+    ['🎯', 'A mitad de camino', 'Llegaste al 50%', total > 0 && pct >= 50],
+    ['🏆', 'Camino completo', 'Terminaste toda la rutina', total > 0 && pct === 100]
+  ];
+  const stat = (n, t) => h('div', {class:'stat'}, h('b', {}, n), h('small', {}, t));
+
+  // ---- Pestaña Camino ----
+  const camino = () => {
+    let n = 0; const OFF = [0, 44, 64, 44, 0, -44, -64, -44], barra = h('i', {style:'width:0%'});
+    requestAnimationFrame(() => requestAnimationFrame(() => { barra.style.width = pct + '%'; }));   // la barra se llena con animación
+    return [
+      A.toast ? h('div', {class:'toast', role:'status'}, A.toast) : null,
+      h('div', {class:'hero'},
+        h('h1', {}, 'Hola, ' + a.nombre.split(' ')[0] + ' 👋'), h('p', {}, mensaje),
+        h('div', {class:'prog'}, barra),
+        h('p', {style:'margin:8px 0 0;font-weight:700'}, 'Tu rutina: ' + pct + '% completada'),
+        h('p', {style:'margin:2px 0 0;font-size:.9rem'}, hecEj + ' de ' + totEj + ' ejercicios hechos · ' + hechos + ' de ' + total + ' días completos'),
+        fin ? null : h('div', {class:'dots', 'aria-label':'Tu ritmo de la semana'}, Array.from({length:N}, (_, i) => h('i', {class: i < semana ? 'on' : ''}))),
+        fin ? null : h('p', {style:'margin:6px 0 0;font-size:.9rem'}, 'Ritmo de esta semana (lunes a domingo): entrenaste ' + semana + (semana === 1 ? ' día' : ' días') + ' de los ' + N + ' que incluye tu plan')),
+      items.filter(x => x.dia.es_hito && x.ok && !A.hitoPeso[x.dia.id]).map(x => h('div', {class:'aviso'},
+        h('b', {}, '⚖️ Cerraste la Semana ' + x.sem + '.'), h('div', {}, 'Cargá tu peso de hoy para ver tu progreso.'),
+        h('button', {onclick: () => pHito(x.dia, true)}, 'Cargar mi peso'))),
+      h('div', {class:'stats'}, stat(racha, 'semanas cumpliendo tu meta 🔥'), stat(hechos, 'días de rutina hechos'), stat(hitosOk, 'semanas de rutina cerradas')),
+      items.length
+        ? h('div', {class:'cam'}, items.map(({dia, ok, sem, nh, ne}, i) => [
+            i === 0 || items[i - 1].sem !== sem ? h('div', {class:'semh'}, 'Semana ' + sem + ' · ' + semStats[sem].h + ' de ' + semStats[sem].t + (semStats[sem].t === 1 ? ' día' : ' días') + ' · ' + semStats[sem].eh + ' de ' + semStats[sem].et + ' ejercicios') : null,
+            h('div', {class:'paso', style: dia.es_hito ? '' : 'transform:translateX(' + OFF[n++ % 8] + 'px)'},
+            h('button', {class:'nodo ' + (dia.es_hito ? 'hito ' : '') + (ok ? 'hecho ' : '') + (!ok && nh > 0 ? 'parcial ' : '') + (dia.id === actual ? 'hoy' : ''),
+              onclick: () => dia.es_hito ? pHito(dia, ok) : pDia(dia), 'aria-label': dia.es_hito ? 'Hito' : 'Día ' + dia.numero_dia},
+              dia.es_hito ? '★' : ok ? '✓' : dia.numero_dia),
+            h('small', {}, dia.es_hito && ok && !A.hitoPeso[dia.id] ? 'Cargá tu peso' : !dia.es_hito && !ok && nh > 0 ? (dia.titulo ? dia.titulo + ' · ' : '') + nh + ' de ' + ne + ' ejercicios' : dia.titulo || ''))]))
+        : h('div', {class:'card'}, h('p', {}, 'Tu coach todavía no te cargó la rutina. ¡Pronto la vas a ver acá!')),
+      bloqueCoach()];
+  };
+
+  // ---- Pestaña Progreso ----
+  const progreso = () => {
+    const ps = A.pesos, p0 = ps[0], p1 = ps[ps.length - 1], dif = ps.length > 1 ? Math.round((p1.peso - p0.peso) * 10) / 10 : 0, hs = items.filter(x => x.dia.es_hito);
+    const g = h('div'); g.innerHTML = ps.length > 1 ? grafPeso(ps) : '';
+    const inp = h('input', {type:'file', accept:'image/*', id:'foto', class:'hide'}), err = h('div', {class:'msg err hide', role:'alert'});
+    const lab = h('label', {class:'btn p', for:'foto'}, '📷 Subir una foto');
+    inp.onchange = async () => {
+      const f = inp.files[0]; if (!f) return;
+      verMsg(err, ''); const t = lab.textContent; lab.textContent = 'Subiendo...';
+      try {
+        const bl = await achicar(f), ruta = A.user.id + '/' + Date.now() + '.jpg';
+        const s = await sb.storage.from('fotos-progreso').upload(ruta, bl, {contentType:'image/jpeg'});
+        if (s.error) throw s.error;
+        const r = await sb.from('fotos_progreso').insert({alumno_id:A.user.id, ruta});
+        if (r.error) { await sb.storage.from('fotos-progreso').remove([ruta]); throw r.error; }
+        A.toast = 'Foto guardada 📸'; dibujarAl();
+      } catch (e) { verMsg(err, traducir(e)); lab.textContent = t; }
+      inp.value = '';
+    };
+    return [
+      h('h1', {}, 'Tu progreso'),
+      h('div', {class:'stats'}, stat(hechosEj, 'ejercicios hechos'), stat(fechas.size, 'días entrenados'), stat(ps.length ? p1.peso : '-', 'kg actual')),
+      h('div', {class:'card'}, h('strong', {}, '⚖️ Tu peso'),
+        ps.length ? h('div', {}, 'Empezaste con ' + p0.peso + ' kg · Ahora ' + p1.peso + ' kg') : h('div', {}, 'Todavía no cargaste tu peso.'),
+        ps.length > 1 ? h('div', {class:'pago ' + (dif <= 0 ? 'verde' : 'gris')}, (dif > 0 ? '+' : '') + dif + ' kg') : null, g,
+        h('button', {onclick: () => pHito(null)}, 'Cargar mi peso de hoy'),
+        hs.length ? h('div', {class:'nota', style:'margin-top:14px'}, 'Peso al cerrar cada semana de tu rutina:') : null,
+        hs.map(({dia, ok, sem}) => { const pw = A.hitoPeso[dia.id]; return h('div', {class:'fila'},
+          h('span', {}, h('b', {}, 'Semana ' + sem), ' · ' + (pw ? pw.peso + ' kg' : ok ? 'pendiente' : 'se habilita al completarla')),
+          ok ? h('button', {class: pw ? 'sec mini' : 'mini', onclick: () => pHito(dia, true)}, pw ? 'Cambiar' : 'Cargar') : null); })),
+      h('h2', {}, 'Tus logros · ' + logros.filter(l => l[3]).length + '/' + logros.length),
+      h('div', {class:'logros'}, logros.map(([e, t, d, on]) => h('div', {class:'logro' + (on ? '' : ' off'), 'aria-label': t + (on ? ', conseguido' : ', bloqueado')},
+        h('span', {}, e), h('b', {}, t), h('small', {}, d)))),
+      h('h2', {}, 'Fotos de progreso'), h('p', {class:'sub'}, 'Es opcional. Solo las ven vos y tu coach.'),
+      lab, inp, err, galeria(A.user.id, true)];
+  };
+
+  // ---- Pestaña Mi plan ----
+  const miPlan = () => {
+    const pl = A.plan, u = A.pagos[0], al = alerta(a.fecha_vencimiento_pago);
+    return [
+      h('h1', {}, 'Mi plan'),
+      h('div', {class:'card'}, h('strong', {}, pl ? pl.nombre : 'Sin plan asignado'),
+        h('div', {}, 'Estado: Activo ✅'),
+        pl ? h('div', {}, N + ' entrenamientos por semana') : null,
+        a.fecha_inicio ? h('div', {}, 'Inicio: ' + fmt(a.fecha_inicio) + (a.duracion_dias ? ' · duración ' + a.duracion_dias + ' días' : '')) : null),
+      h('div', {class:'card'}, h('strong', {}, 'Pagos'),
+        h('div', {}, 'Último pago: ' + (u ? fmt(u.fecha_pago) + ' · $' + u.monto : 'todavía no registrado')),
+        h('div', {}, 'Vencimiento: ' + (a.fecha_vencimiento_pago ? fmt(a.fecha_vencimiento_pago) : 'sin fecha')),
+        h('div', {class:'pago ' + al.c}, al.t)),
+      bloqueCoach(), h('button', {class:'link', onclick: salir}, 'Cerrar sesión')];
+  };
+
+  const nav = h('nav', {class:'nav'}, [['camino', '🏃', 'Camino'], ['progreso', '📈', 'Progreso'], ['plan', '👤', 'Mi plan']].map(([k, ic, l]) =>
+    h('button', {class: tab === k ? 'on' : '', onclick: () => { A.tab = k; dibujarAl(); pCamino(A.user, A.a, true); }}, h('span', {}, ic), l)));
+  const cuerpo = ({camino, progreso, plan:miPlan})[tab]();
+  A.toast = null;
+  pantalla(cuerpo, nav);
+  app.className = 'conNav';
+}
+
+// ---- Coach: bajas y reinscripciones ----
+function darBaja(a){
+  pedir('Dar de baja a ' + a.nombre, [{k:'m', l:'Motivo (opcional)'}], async v => {
+    const r = await sb.from('alumnos').update({estado:'baja', fecha_baja:hoy(), motivo_baja:v.m || null}).eq('id', a.id);
+    if (r.error) return traducir(r.error);
+    await recargar();
+  });
+}
+function bajas(b){
+  const x = C.alumnos.filter(a => a.estado === 'baja');
+  if (!x.length) return;
+  b.append(h('h2', {}, 'Dados de baja'));
+  x.forEach(a => b.append(h('div', {class:'card'}, h('strong', {}, a.nombre),
+    h('div', {}, 'Baja: ' + (a.fecha_baja ? fmt(a.fecha_baja) : '-') + (a.motivo_baja ? ' · ' + a.motivo_baja : '')),
+    h('button', {class:'sec', onclick: async () => {
+      if (!confirm('¿Reinscribir a ' + a.nombre + '? Después podés ajustar su plan y vencimiento.')) return;
+      const r = await sb.from('alumnos').update({estado:'aprobado', fecha_baja:null, motivo_baja:null}).eq('id', a.id);
+      if (r.error) return alert(traducir(r.error));
+      recargar();
+    }}, 'Reinscribir'))));
+}
+
+// ---- Alumno: cargar el peso corporal (al cerrar una semana, o libre en cualquier momento) ----
+function pHito(dia, ok){
+  const libre = !dia, previo = dia ? A.hitoPeso[dia.id] : null;
+  const err = h('div', {class:'msg err hide', role:'alert'}), btn = h('button', {type:'submit'}, 'Guardar mi peso');
+  const peso = h('input', {id:'hp', type:'text', inputmode:'decimal', value: previo ? previo.peso : '', placeholder:'Ej: 72,5'});
+  const guardar = async () => {
+    const p = Number(peso.value.trim().replace(',', '.'));
+    if (!(p >= 20 && p <= 400)) return 'Escribí tu peso en kg, por ejemplo 72,5.';
+    const fila = {alumno_id:A.user.id, peso:p, fecha:hoy()};
+    const res = libre ? await sb.from('historial_peso').insert(fila)
+      : await sb.from('historial_peso').upsert({...fila, hito_id:dia.id}, {onConflict:'alumno_id,hito_id'});
+    if (res.error) return traducir(res.error);
+    A.toast = libre ? '⚖️ Peso guardado ✓' : '⚖️ Peso guardado. ¡Semana cerrada!';
+    pCamino(A.user, A.a);
+  };
+  pantalla(
+    h('button', {class:'link mini', onclick: () => pCamino(A.user, A.a)}, '← Volver'),
+    h('h1', {}, libre ? '⚖️ Tu peso de hoy' : '★ ' + (dia.titulo || 'Hito')),
+    libre || ok
+      ? h('form', {class:'card', novalidate:true, onsubmit: e => { e.preventDefault(); correr(btn, err, guardar); }},
+          h('p', {}, libre ? 'Anotá tu peso de hoy para que tu coach vea cómo avanzás.' : '¡Completaste esta semana! Anotá tu peso de hoy para que tu coach vea tu progreso.'),
+          h('label', {for:'hp'}, 'Tu peso (kg)'), peso, err, btn)
+      : h('div', {class:'card'}, h('p', {}, 'Cuando completes todos los días de esta semana, vas a poder cargar tu peso acá.'))
+  );
+}
+
+// Si el alumno vuelve a la app, se actualizan sus datos (por si el coach cambió su plan, su pago o su estado)
+['visibilitychange', 'focus'].forEach(ev => window.addEventListener(ev, () => {
+  if (document.hidden || !A.user || !app.classList.contains('conNav') || Date.now() - (A.t || 0) < 3000) return;
+  A.t = Date.now(); pCamino(A.user, A.a, true);
+}));
+
+// =====================================================================
+// 12. OLVIDÉ MI CONTRASEÑA
+// =====================================================================
+let recuperando = HASH_INICIAL.includes('type=recovery');     // true cuando el alumno llega desde el mail
+
+function pOlvide(aviso){
+  const mail = h('input', {id:'om', type:'email', autocomplete:'email', inputmode:'email'});
+  const err = h('div', {class:'msg err hide', role:'alert'}), ok = h('div', {class:'msg ok hide', role:'status'});
+  verMsg(err, aviso);
+  const btn = h('button', {type:'submit'}, 'Enviarme el link');
+  pantalla(
+    h('h1', {}, 'Recuperar contraseña'),
+    h('p', {class:'sub'}, 'Escribí tu mail y te enviamos un link para elegir una contraseña nueva.'),
+    h('form', {class:'card', novalidate:true, onsubmit: e => { e.preventDefault(); correr(btn, err, async () => {
+      const m = mail.value.trim();
+      if (!/^\S+@\S+\.\S+$/.test(m)) return 'El mail no es válido.';
+      if (location.protocol === 'file:') return 'Esto funciona cuando la página está publicada en internet.';
+      const {error} = await sb.auth.resetPasswordForEmail(m, {redirectTo: location.origin + location.pathname});
+      if (error) return traducir(error);
+      verMsg(ok, 'Listo. Si ese mail está registrado, te llegó un link. Revisá también la carpeta de spam.');
+    }); }}, h('label', {for:'om'}, 'Mail'), mail, err, ok, btn),
+    h('button', {class:'link', onclick: () => pLogin(false)}, 'Volver a ingresar'));
+}
+
+function pNueva(){
+  const p1 = h('input', {id:'np1', type:'password', autocomplete:'new-password'}), p2 = h('input', {id:'np2', type:'password', autocomplete:'new-password'});
+  const err = h('div', {class:'msg err hide', role:'alert'}), btn = h('button', {type:'submit'}, 'Guardar contraseña');
+  pantalla(
+    h('h1', {}, 'Elegí tu contraseña nueva'),
+    h('form', {class:'card', novalidate:true, onsubmit: e => { e.preventDefault(); correr(btn, err, async () => {
+      if (p1.value.length < 8) return 'La contraseña debe tener al menos 8 caracteres.';
+      if (p1.value !== p2.value) return 'Las contraseñas no coinciden.';
+      const {error} = await sb.auth.updateUser({password:p1.value});
+      if (error) return traducir(error);
+      recuperando = false; history.replaceState(null, '', location.pathname);
+      arrancar();
+    }); }}, h('label', {for:'np1'}, 'Contraseña nueva (mínimo 8 caracteres)'), p1,
+      h('label', {for:'np2'}, 'Repetí la contraseña'), p2, err, btn));
+}
+
+sb.auth.onAuthStateChange(ev => { if (ev === 'PASSWORD_RECOVERY') { recuperando = true; pNueva(); } });
+
+// =====================================================================
+// 13. TABLERO DE MÉTRICAS (coach)
+// =====================================================================
+const PERIODOS = [['mes', 'Este mes'], ['mesant', 'Mes anterior'], ['3m', 'Últimos 3 meses'], ['6m', 'Últimos 6 meses'], ['anio', 'Este año'], ['otro', 'Personalizado']];
+const mesIni = (f, n = 0) => { const d = new Date(f + 'T12:00'); d.setDate(1); d.setMonth(d.getMonth() + n); return d.toLocaleDateString('en-CA'); };
+const diaMas = (f, n) => { const d = new Date(f + 'T12:00'); d.setDate(d.getDate() + n); return d.toLocaleDateString('en-CA'); };
+const dinero = n => '$' + Math.round(n).toLocaleString('es-AR');
+const corto = n => n >= 1e6 ? (n / 1e6).toFixed(1).replace('.0', '') + 'M' : n >= 1e3 ? Math.round(n / 1e3) + 'k' : String(Math.round(n));
+const enRango = (f, r) => !!f && f >= r.d && f <= r.h;
+
+// Fechas "desde / hasta" según el período elegido
+function rango(p){
+  const h0 = hoy();
+  const r = {mes:[mesIni(h0), h0], mesant:[mesIni(h0, -1), diaMas(mesIni(h0), -1)], '3m':[mesIni(h0, -2), h0], '6m':[mesIni(h0, -5), h0],
+    anio:[h0.slice(0, 4) + '-01-01', h0], otro:[p.d || mesIni(h0), p.h || h0]}[p.t];
+  return {d:r[0], h:r[1]};
+}
+
+// Divide el período en semanas (si es corto) o en meses (si es largo) para los gráficos
+function buckets(d, h){
+  const out = [];
+  if (difDias(d, h) + 1 > 62) {
+    for (let m = mesIni(d); m <= h; m = mesIni(m, 1)) {
+      const fin = diaMas(mesIni(m, 1), -1);
+      out.push({a: m < d ? d : m, b: fin > h ? h : fin, e: new Date(m + 'T12:00').toLocaleDateString('es-AR', {month:'short'})});
+    }
+  } else {
+    for (let a = d; a <= h; a = diaMas(a, 7)) out.push({a, b: diaMas(a, 6) > h ? h : diaMas(a, 6), e: fmt(a).slice(0, 5)});
+  }
+  return out;
+}
+const porBucket = (bs, xs, fecha, valor) => bs.map(x => xs.filter(i => { const f = fecha(i); return f >= x.a && f <= x.b; }).reduce((t, i) => t + valor(i), 0));
+
+// Compara con el período anterior (▲ sube, ▼ baja; verde = bueno, rojo = malo)
+function delta(act, prev, maloSiSube){
+  if (!act && !prev) return null;
+  const dif = act - prev, bueno = dif === 0 ? null : (dif > 0) !== !!maloSiSube;
+  const txt = prev === 0 ? '+' + corto(act) + ' (antes 0)' : (dif > 0 ? '▲ ' : dif < 0 ? '▼ ' : '= ') + Math.abs(Math.round(dif * 100 / prev)) + '%';
+  return h('small', {class:'delta ' + (bueno === null ? '' : bueno ? 'ok' : 'mal')}, txt + ' vs. anterior');
+}
+const tile = (v, t, d) => h('div', {class:'stat'}, h('b', {}, v), h('small', {}, t), d || null);
+const waBtn = a => { const t = (a.telefono || '').replace(/\D/g, ''); return t ? h('a', {class:'btn mini', href:'https://wa.me/' + t, target:'_blank', rel:'noopener'}, 'WhatsApp') : null; };
+
+function barras(bs, vals, fv){
+  const mx = Math.max(1, ...vals);
+  return h('div', {class:'barras', role:'img', 'aria-label':'Gráfico: ' + bs.map((x, i) => x.e + ' ' + fv(vals[i])).join(', ')},
+    bs.map((x, i) => h('div', {class:'col', title:x.e + ': ' + fv(vals[i])},
+      bs.length <= 12 ? h('small', {}, fv(vals[i])) : null,
+      h('i', {style:'height:' + (vals[i] ? Math.max(3, Math.round(vals[i] * 100 / mx) * 0.8) : 0) + '%'}),
+      h('small', {}, x.e))));
+}
+
+async function vTablero(b){
+  const sel = h('select', {id:'per'}, PERIODOS.map(([k, l]) => h('option', {value:k, selected: k === C.per.t}, l)));
+  const d1 = h('input', {type:'date', id:'pd1', value:C.per.d}), d2 = h('input', {type:'date', id:'pd2', value:C.per.h});
+  const otro = h('div', {class: C.per.t === 'otro' ? '' : 'hide'}, h('label', {for:'pd1'}, 'Desde'), d1, h('label', {for:'pd2'}, 'Hasta'), d2);
+  const cont = h('div');
+  sel.onchange = () => { C.per.t = sel.value; otro.classList.toggle('hide', sel.value !== 'otro'); pintar(); };
+  d1.onchange = d2.onchange = () => { C.per.d = d1.value; C.per.h = d2.value; pintar(); };
+  b.append(h('div', {class:'card'}, h('label', {for:'per', style:'margin-top:0'}, 'Período'), sel, otro), cont);
+  pintar();
+
+  async function pintar(){
+    const k = ++C.tk, r = rango(C.per);
+    if (r.d > r.h || difDias(r.d, r.h) > 400) return cont.replaceChildren(h('div', {class:'msg err'}, 'Elegí un período válido: "desde" antes que "hasta" y hasta 400 días.'));
+    cont.replaceChildren(h('p', {class:'sub'}, 'Calculando...'));
+    const dias = difDias(r.d, r.h) + 1, prev = {d:diaMas(r.d, -dias), h:diaMas(r.d, -1)}, hoy0 = hoy();
+    const [ea, ed] = await Promise.all([sb.rpc('entrenos_alumno', {p_desde:r.d, p_hasta:r.h}), sb.rpc('entrenos_dia', {p_desde:r.d, p_hasta:r.h})]);
+    if (k !== C.tk) return;                                  // el coach cambió el período mientras cargaba
+    if (ea.error || ed.error) return cont.replaceChildren(h('div', {class:'msg err'}, traducir(ea.error || ed.error)));
+
+    // ---- Alumnos ----
+    const al = C.alumnos, bs = buckets(r.d, r.h), unidad = dias > 62 ? 'mes' : 'semana';
+    const activos = al.filter(a => a.estado === 'aprobado');
+    const nuevos = rg => al.filter(a => (a.estado === 'aprobado' || a.estado === 'baja') && enRango(a.fecha_inicio, rg));
+    const bajas = rg => al.filter(a => a.estado === 'baja' && enRango(a.fecha_baja, rg));
+    const nu = nuevos(r), nuP = nuevos(prev), ba = bajas(r), baP = bajas(prev);
+    // ---- Dinero ----
+    const pagos = rg => C.pagos.filter(x => enRango(x.fecha_pago, rg)), suma = xs => xs.reduce((t, x) => t + Number(x.monto), 0);
+    const pg = pagos(r), pgP = pagos(prev);
+    const precio = a => { const pl = C.planes.find(x => x.id === a.plan_id); return pl ? Number(pl.precio) : 0; };
+    const vencidos = activos.filter(a => a.fecha_vencimiento_pago && a.fecha_vencimiento_pago < hoy0).sort((x, y) => x.fecha_vencimiento_pago.localeCompare(y.fecha_vencimiento_pago));
+    const porVencer = activos.filter(a => a.fecha_vencimiento_pago && a.fecha_vencimiento_pago >= hoy0 && difDias(hoy0, a.fecha_vencimiento_pago) <= 7).length;
+    // ---- Cumplimiento: solo alumnos activos que tienen rutina cargada ----
+    const dMap = {}; ea.data.forEach(x => dMap[x.id_alumno] = x.dias);
+    const base = activos.filter(a => C.res[a.id] && C.res[a.id].dias_total > 0);
+    const entrenaron = base.filter(a => dMap[a.id] > 0);
+    const sin = base.filter(a => !(dMap[a.id] > 0)).sort((x, y) => (C.res[x.id].ultimo || '').localeCompare(C.res[y.id].ultimo || ''));
+    const prom = base.length ? Math.round(base.reduce((t, a) => t + (dMap[a.id] || 0), 0) * 10 / base.length) / 10 : 0;
+    // ---- Planes ----
+    const cant = {}, cobP = {};
+    activos.forEach(a => { const q = a.plan_id || 'x'; cant[q] = (cant[q] || 0) + 1; });
+    pg.forEach(x => { const q = x.plan_id || 'x'; cobP[q] = (cobP[q] || 0) + Number(x.monto); });
+    const filasPlan = [...C.planes.map(x => ({n:x.nombre + (x.activo ? '' : ' (inactivo)'), id:x.id})), {n:'Sin plan', id:'x'}].filter(x => cant[x.id] || cobP[x.id]);
+    const mxp = Math.max(1, ...filasPlan.map(x => cant[x.id] || 0));
+
+    const lista = (xs, txt) => [xs.slice(0, 8).map(a => h('div', {class:'fila'}, h('span', {}, h('b', {}, a.nombre), ' · ' + txt(a)), waBtn(a))),
+      xs.length > 8 ? h('div', {class:'nota'}, 'y ' + (xs.length - 8) + ' más') : null];
+    const ult = a => C.res[a.id].ultimo ? 'último: ' + fmt(new Date(C.res[a.id].ultimo).toLocaleDateString('en-CA')) : 'nunca entrenó';
+
+    cont.replaceChildren(h('div', {},
+      h('p', {class:'sub'}, 'Del ' + fmt(r.d) + ' al ' + fmt(r.h) + ' · se compara con los ' + dias + ' días anteriores'),
+
+      h('h2', {}, '👥 Alumnos'),
+      h('div', {class:'stats dos'}, tile(activos.length, 'activos ahora'), tile(nu.length, 'nuevos en el período', delta(nu.length, nuP.length)),
+        tile(ba.length, 'bajas en el período', delta(ba.length, baP.length, true)), tile(al.filter(a => a.estado === 'pendiente').length, 'solicitudes por aprobar')),
+      h('div', {class:'card'}, h('strong', {}, 'Altas por ' + unidad), barras(bs, porBucket(bs, nu, a => a.fecha_inicio, () => 1), String)),
+
+      h('h2', {}, '💰 Dinero'),
+      h('div', {class:'stats dos'}, tile(dinero(suma(pg)), 'cobrado en el período', delta(suma(pg), suma(pgP))), tile(pg.length, 'pagos registrados', delta(pg.length, pgP.length)),
+        tile(vencidos.length, 'pagos vencidos ahora', vencidos.length ? h('small', {}, '≈ ' + dinero(vencidos.reduce((t, a) => t + precio(a), 0)) + ' sin cobrar') : null),
+        tile(porVencer, 'vencen en 7 días')),
+      h('div', {class:'card'}, h('strong', {}, 'Cobrado por ' + unidad), barras(bs, porBucket(bs, pg, x => x.fecha_pago, x => Number(x.monto)), corto)),
+      vencidos.length ? h('div', {class:'card'}, h('strong', {}, 'Pagos vencidos'),
+        lista(vencidos, a => 'venció hace ' + difDias(a.fecha_vencimiento_pago, hoy0) + (difDias(a.fecha_vencimiento_pago, hoy0) === 1 ? ' día' : ' días'))) : null,
+
+      h('h2', {}, '🏃 Cumplimiento'),
+      h('p', {class:'sub'}, 'Cuenta solo a los alumnos activos que tienen rutina cargada (' + base.length + ').'),
+      h('div', {class:'stats dos'}, tile(entrenaron.length + ' de ' + base.length, 'entrenaron en el período'),
+        tile(base.length ? Math.round(entrenaron.length * 100 / base.length) + '%' : '-', 'tasa de actividad'),
+        tile(prom, 'días entrenados por alumno (promedio)'), tile(sin.length, 'sin entrenar en el período')),
+      h('div', {class:'card'}, h('strong', {}, 'Entrenamientos por ' + unidad), h('div', {class:'nota'}, 'Suma de alumnos que entrenaron cada día'),
+        barras(bs, porBucket(bs, ed.data, x => x.fecha, x => x.alumnos), String)),
+      sin.length ? h('div', {class:'card'}, h('strong', {}, 'Sin entrenar en el período'), lista(sin, ult)) : null,
+
+      h('h2', {}, '📋 Planes'),
+      h('div', {class:'card'}, filasPlan.length
+        ? filasPlan.map(x => h('div', {}, h('b', {}, x.n), ' · ' + (cant[x.id] || 0) + ((cant[x.id] || 0) === 1 ? ' alumno' : ' alumnos') + ' · ' + dinero(cobP[x.id] || 0) + ' cobrado',
+            h('div', {class:'prog'}, h('i', {style:'width:' + Math.round((cant[x.id] || 0) * 100 / mxp) + '%'}))))
+        : h('p', {}, 'Todavía no hay alumnos con plan.'))
+    ));
+  }
+}
+
+// =====================================================================
+// 14. PESOS POR EJERCICIO Y TABLA RESUMEN (coach)
+// =====================================================================
+
+// Para cada ejercicio (por nombre) busca con cuánto peso empezó el alumno (la primera vez que lo hizo) y con cuánto va (la última vez).
+// Si el mismo ejercicio se repite en varias semanas, cuenta como uno solo.
+function pesosPorNombre(dias, regs){
+  const info = {};
+  dias.forEach(d => (d.ejercicios || []).forEach(e => {
+    const r = regs[e.id]; if (!r || r.peso_usado == null) return;
+    const t = r.marcado_en || (r.fecha + 'T12:00:00'), k = e.nombre.trim().toLowerCase(), x = info[k] = info[k] || {n:e.nombre.trim()};
+    if (!x.tIni || t < x.tIni) { x.tIni = t; x.ini = Number(r.peso_usado); }
+    if (!x.tAct || t > x.tAct) { x.tAct = t; x.act = Number(r.peso_usado); }
+  }));
+  return info;
+}
+
+// Tabla al final de la rutina: ejercicio, series, repeticiones, peso sugerido vs. peso real, y diferencia con el peso inicial
+function tablaResumen(dias, regs, semDe){
+  const base = pesosPorNombre(dias, regs), kg = n => String(Math.round(n * 100) / 100).replace('.', ',') + ' kg', filas = [];
+  dias.filter(d => !d.es_hito).forEach(d => {
+    const ex = (d.ejercicios || []).filter(e => !e.archivado).sort((p, q) => p.orden - q.orden);
+    if (!ex.length) return;
+    filas.push(h('tr', {class:'dia'}, h('th', {colspan:6}, 'Semana ' + semDe[d.id] + ' · Día ' + d.numero_dia + (d.titulo ? ' · ' + d.titulo : ''))));
+    ex.forEach(e => {
+      const r = regs[e.id], real = r && r.peso_usado != null ? Number(r.peso_usado) : null, ini = base[e.nombre.trim().toLowerCase()];
+      const dl = real != null && ini ? Math.round((real - ini.ini) * 100) / 100 : null;
+      filas.push(h('tr', {},
+        h('td', {}, e.nombre, e.superserie ? h('span', {class:'ss'}, 'SS ' + e.superserie) : null),
+        h('td', {}, e.series || '-'), h('td', {}, e.repeticiones || '-'), h('td', {}, e.peso_sugerido || '-'),
+        h('td', {}, real != null ? kg(real) : '-'),
+        h('td', {class:'dl ' + (dl > 0 ? 'pos' : dl < 0 ? 'neg' : '')}, dl == null ? '-' : (dl > 0 ? '+' : '') + kg(dl))));
+    });
+  });
+  if (!filas.length) return h('p', {class:'sub'}, 'Todavía no hay ejercicios cargados.');
+  return h('div', {class:'tabla'}, h('table', {},
+    h('thead', {}, h('tr', {}, ['Ejercicio', 'Series', 'Reps', 'Sugerido', 'Real', 'Δ vs. inicio'].map(t => h('th', {}, t)))),
+    h('tbody', {}, filas)));
+}
+
+// =====================================================================
+if (HASH_INICIAL.includes('error_code=')) {                   // el link del mail venció o ya se usó
+  history.replaceState(null, '', location.pathname);
+  pOlvide('El link venció o ya se usó. Pedí uno nuevo.');
+} else arrancar();
+</script>
+</body>
+</html>
